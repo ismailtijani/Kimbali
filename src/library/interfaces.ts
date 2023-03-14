@@ -4,16 +4,34 @@ export interface IUser {
   name: string;
   email: string;
   password: string;
-  tokens: object[]
+  tokens: object[];
 }
 
-export interface IUserMethods{
-  generateAuthToken():string;
+export interface IUserMethods {
+  generateAuthToken(): string;
 }
 
 export interface UserModel extends Model<IUser, {}, IUserMethods> {
-  findByCredentials(email: string, password:string):HydratedDocument<IUser, IUserMethods>
+  findByCredentials(
+    email: string,
+    password: string
+  ): HydratedDocument<IUser, IUserMethods>;
 }
+
+export interface ILogin {
+  email: string;
+  password: string;
+}
+
+export interface IDecode {
+  _id: string;
+}
+
+// export interface customRequest extends Request {
+//   token: string;
+//   user: IUser;
+// }
+
 export interface AppErrorArgs {
   name?: string;
   message: string;

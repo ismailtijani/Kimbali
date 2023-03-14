@@ -5,6 +5,7 @@ import helmet from "helmet";
 import compression from "compression";
 import mongoSetup from "../database/mongodb";
 import errorHandler from "../middleware/errorHandler";
+import userRouter from "../routes/users";
 
 dotenv.config();
 
@@ -42,6 +43,9 @@ class App {
       res.status(200).json({ message: "Welcome to CashApp API" });
     });
 
+    // Other routes
+    userRouter(this.app);
+
     // set up global error handling here
     this.app.use(
       (error: Error, req: Request, res: Response, next: NextFunction) => {
@@ -52,8 +56,9 @@ class App {
 }
 
 export const PORT = process.env.PORT || 3000;
-export const mongoUrl = process.env.NODE_ENV === "development"
-? `mongodb://127.0.0.1:27017/Loan-App`
-: (process.env.MONGODB_URL as string);
+export const mongoUrl =
+  process.env.NODE_ENV === "development"
+    ? `mongodb://127.0.0.1:27017/Loan-App`
+    : (process.env.MONGODB_URL as string);
 
 export default new App().app;

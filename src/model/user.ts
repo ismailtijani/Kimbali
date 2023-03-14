@@ -1,9 +1,10 @@
-import mongoose, { Schema, model } from "mongoose";
+import { Schema, model } from "mongoose";
 import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import AppError from "../library/errorClass";
-import { responseStatusCodes } from "../library/interfaces";
+import { IUser, responseStatusCodes, UserModel } from "../library/interfaces";
+import Logger from "../library/logger";
 
 const userSchema = new Schema(
   {
@@ -51,9 +52,16 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
+// User document relationship with another document (to enable populate)
+userSchema.virtual("Document name", {
+  ref: "Model Name",
+  localField: "_id",
+  foreignField: "owner_id",
+});
+
 //Hashing User plain text password before saving
 userSchema.pre("save", async function (next) {
-  const user = this;
+  const user = this; //Type cast this
   if (user.isModified("password"))
     user.password = await bcrypt.hash(user.password, 8);
   next();
@@ -61,7 +69,7 @@ userSchema.pre("save", async function (next) {
 
 // User Token Generation
 userSchema.methods.generateAuthToken = async function () {
-  const user = this;
+  const user = this; //Type Cast this
 
   const token = jwt.sign(
     { _id: user._id.toString() },
@@ -72,6 +80,46 @@ userSchema.methods.generateAuthToken = async function () {
   return token;
 };
 
-const User = model("User", userSchema);
+//Removing sensitive datas from the user
+userSchema.methods.toJSON = function () {
+  const user = this; //Type cast this
+  const userObject = user.toObject();
+  delete userObject.password;
+  delete userObject.tokens;
+  return userObject;
+};
 
-export default User
+//Login User Authentication
+userSchema.statics.findByCredentials = async (
+  email: IUser["email"],
+  password: IUser["password"]
+) => {
+  const user = await User.findOne({ email });
+  if (!user)
+    throw new AppError({
+      message: "User does not exist",
+      statusCode: responseStatusCodes.NOT_FOUND,
+    });
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch)
+    throw new AppError({
+      message: "Email or Password is incorrect",
+      statusCode: responseStatusCodes.BAD_REQUEST,
+    });
+  return user;
+};
+
+//Deleting User's records upon Deleting User Profile
+// userSchema.pre("remove", async function (next) {
+//     const user = this;
+//     await Model.deleteMany({ owner_id: user._id });
+//     Logger.warn(
+//       `All *** created by ${user.name} has been deleted as the user deleted thier account`
+//     );
+//     next();
+//   });
+
+//Create a User Model
+const User = model<IUser, UserModel>("User", userSchema);
+
+export default User;
