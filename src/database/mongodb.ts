@@ -20,11 +20,8 @@ class MongoDB {
       Logging.info("DB Connection Successful");
       Logging.info(`'''''''''''''''''''''''''`);
     } catch (error: any) {
-      throw new AppError({
-        name: error.name,
-        message: error.message,
-        statusCode: responseStatusCodes.INTERNAL_SERVER_ERROR,
-      });
+      Logging.error(`MongoDB connection error: ${error.message}`);
+      errorHandler.handleError(error);
     }
   }
 }

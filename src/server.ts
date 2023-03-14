@@ -26,3 +26,5 @@ process.on("unhandledRejection", (error: Error | AppError) => {
     statusCode: responseStatusCodes.INTERNAL_SERVER_ERROR,
   });
 });
+
+export default server;

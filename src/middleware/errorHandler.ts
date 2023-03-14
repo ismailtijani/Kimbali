@@ -36,8 +36,10 @@ export class ErrorHandler {
       });
       res.status(responseStatusCodes.INTERNAL_SERVER_ERROR).json({
         STATUS: "FAILURE",
-        MESSAGE: "Internal Server Error",
-        STACK: process.env.NODE_ENV === "development" ? error.stack : {},
+        ERROR: {
+          message: "Internal Server Error",
+          stack: process.env.NODE_ENV === "development" ? error.stack : {},
+        },
       });
       process.exit(1);
     }
