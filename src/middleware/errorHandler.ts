@@ -1,7 +1,7 @@
 import { Response } from "express";
-import Logging from "../library/logger";
+import Logger from "../library/logger";
 import AppError from "../library/errorClass";
-import { responseStatusCodes } from "../library/types";
+import { responseStatusCodes } from "../library/interfaces";
 
 export class ErrorHandler {
   private isTrustedError(error: Error | AppError) {
@@ -24,7 +24,7 @@ export class ErrorHandler {
     });
   };
   private handleCriticalError(error: Error, res?: Response) {
-    Logging.error(error);
+    Logger.error(error);
     if (res) {
       res.status(responseStatusCodes.BAD_REQUEST).json({
         STATUS: "FAILURE",

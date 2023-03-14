@@ -1,9 +1,7 @@
 import mongoose from "mongoose";
-import Logging from "../library/logger";
+import Logger from "../library/logger";
 import { mongoUrl } from "../config/app";
 import errorHandler from "../middleware/errorHandler";
-import AppError from "../library/errorClass";
-import { responseStatusCodes } from "../library/types";
 
 class MongoDB {
   //   public Url =
@@ -17,10 +15,10 @@ class MongoDB {
         .set("strictQuery", false)
         .connect(mongoUrl, { retryWrites: true, w: "majority" });
 
-      Logging.info("DB Connection Successful");
-      Logging.info(`'''''''''''''''''''''''''`);
+      Logger.info("DB Connection Successful");
+      Logger.info(`'''''''''''''''''''''''''`);
     } catch (error: any) {
-      Logging.error(`MongoDB connection error: ${error.message}`);
+      Logger.error(`MongoDB connection error: ${error.message}`);
       errorHandler.handleError(error);
     }
   }

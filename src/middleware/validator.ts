@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import Logging from "../library/logger";
+import Logger from "../library/logger";
 import AppError from "../library/errorClass";
-import { responseStatusCodes } from "../library/types";
+import { responseStatusCodes } from "../library/interfaces";
 import { ObjectSchema, ValidationErrorItem } from "joi";
 
 function validator(schema: ObjectSchema, property: keyof Request) {
@@ -14,11 +14,11 @@ function validator(schema: ObjectSchema, property: keyof Request) {
       next();
     } else {
       const { details } = error;
-      Logging.info(details);
+      Logger.info(details);
       const message: string = details
         .map((i: ValidationErrorItem) => i.message)
         .join(",");
-      Logging.error(error);
+      Logger.error(error);
       throw new AppError({
         message,
         statusCode: responseStatusCodes.UNPROCESSABLE,

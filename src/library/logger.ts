@@ -1,6 +1,6 @@
 import chalk from "chalk";
 
-export default class Logging {
+export default class Logger {
   public static info(args: any): void {
     console.log(
       chalk.blue(`[${new Date().toLocaleString()}] [INFO]: `),

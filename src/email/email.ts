@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import Logging from "../library/logger"
+import Logger from "../library/logger"
 
 interface IOptions {
   email: string;
@@ -25,8 +25,8 @@ const sendEmail = (options: IOptions) => {
   };
 
   transporter.sendMail(mailOptions, function (error, info) {
-    if (error) Logging.error(error);
-    Logging.info("Email sent: " + info.response);
+    if (error) Logger.error(error);
+    Logger.info("Email sent: " + info.response);
   });
 };
 

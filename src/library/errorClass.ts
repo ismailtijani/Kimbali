@@ -1,4 +1,4 @@
-import { responseStatusCodes, AppErrorArgs } from "./types";
+import { responseStatusCodes, AppErrorArgs } from "./interfaces";
 
 export default class AppError extends Error {
   public readonly name: string;

@@ -1,6 +1,6 @@
 import { Response } from "express";
-import { responseStatusCodes } from "./types";
-export class CommonService {
+import { responseStatusCodes } from "./interfaces";
+export class responseHelper {
       public static successResponse(res: Response, DATA?: any) {
         res.status(responseStatusCodes.SUCCESS).json({
           STATUS: "SUCCESS",
