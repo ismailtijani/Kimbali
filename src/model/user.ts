@@ -4,9 +4,9 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import AppError from "../library/errorClass";
 import { IUser, responseStatusCodes, UserModel } from "../library/interfaces";
-import Logger from "../library/logger";
+// import Logger from "../library/logger";
 
-const userSchema = new Schema(
+const userSchema = new Schema<IUser>(
   {
     name: {
       type: String,
@@ -39,6 +39,22 @@ const userSchema = new Schema(
           });
       },
     },
+    phoneNumber: {
+      type: Number,
+      required: true
+    },
+    balance: {
+      type: Number,
+      default: 0
+    },
+    wallet_id: {
+      type: String
+    },
+
+    is_admin: {
+      type: Boolean,
+      default: false 
+    },
     tokens: [
       {
         token: {
@@ -47,7 +63,6 @@ const userSchema = new Schema(
         },
       },
     ],
-    avatar: Buffer,
   },
   { timestamps: true }
 );
@@ -79,6 +94,15 @@ userSchema.methods.generateAuthToken = async function () {
   await user.save();
   return token;
 };
+
+// Genarate User Wallet ID
+userSchema.methods.generateWalletId = async function () {
+  const user = this  //Type Cast this
+  const wallet_id =  Math.random().toString(32).substring(2, 9)
+  user.wallet_id = wallet_id
+  await user.save()
+  return wallet_id
+}
 
 //Removing sensitive datas from the user
 userSchema.methods.toJSON = function () {

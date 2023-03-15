@@ -4,11 +4,16 @@ export interface IUser {
   name: string;
   email: string;
   password: string;
+  phoneNumber: number;
+  balance?: number;
+  wallet_id?: string;
   tokens: object[];
+  is_admin?: boolean
 }
 
 export interface IUserMethods {
   generateAuthToken(): string;
+  generateWalletId():string
 }
 
 export interface UserModel extends Model<IUser, {}, IUserMethods> {
