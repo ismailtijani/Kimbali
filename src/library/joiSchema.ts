@@ -3,9 +3,10 @@ import { IUser, ILogin } from "../library/interfaces";
 
 const joiSchema = {
   signup: Joi.object<IUser>({
-    name: Joi.string().min(2).required(),
     email: Joi.string().email().required(),
+    name: Joi.string().min(2).required(),
     password: Joi.string().min(8).max(20).required(),
+    phoneNumber: Joi.number().required(),
   }),
   login: Joi.object<ILogin>({
     email: Joi.string().email().required(),

@@ -21,15 +21,15 @@ class UserRoutes {
     this.router.post(
       "/login",
       validator(joiSchema.login, "body"),
-      userController.userLogin
+      userController.login
     );
     //Using a single line of code for the authetication middleware"
     this.router.use(auth);
-    this.router.get("/profile", userController.readProfile);
-    this.router.patch("/update", userController.updateProfile);
-    this.router.post("/logout", userController.Logout);
-    this.router.post("/logoutall", userController.LogoutAll);
-    this.router.delete("/delete", userController.deleteProfile);
+    // this.router.get("/profile", userController.readProfile);
+    // this.router.patch("/update", userController.updateProfile);
+    // this.router.post("/logout", userController.Logout);
+    // this.router.post("/logoutall", userController.LogoutAll);
+    // this.router.delete("/delete", userController.deleteProfile);
   }
 }
 
