@@ -20,7 +20,6 @@ export class ErrorHandler {
     return res.status(error.statusCode).json({
       STATUS: "FAILURE",
       MESSAGE: error.message,
-      STACK: process.env.NODE_ENV === "development" ? error.stack : {},
     });
   };
   private handleCriticalError(error: Error, res?: Response) {
@@ -31,7 +30,6 @@ export class ErrorHandler {
         ERROR: {
           name: error.name,
           message: error.message,
-          stack: process.env.NODE_ENV === "development" ? error.stack : {},
         },
       });
       res.status(responseStatusCodes.INTERNAL_SERVER_ERROR).json({

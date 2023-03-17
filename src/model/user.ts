@@ -41,19 +41,19 @@ const userSchema = new Schema<IUser>(
     },
     phoneNumber: {
       type: Number,
-      required: true
+      required: true,
     },
     balance: {
       type: Number,
-      default: 0
+      default: 0,
     },
     wallet_id: {
-      type: String
+      type: String,
     },
 
     is_admin: {
       type: Boolean,
-      default: false 
+      default: false,
     },
     tokens: [
       {
@@ -83,7 +83,7 @@ userSchema.pre("save", async function (next) {
 });
 
 // User Token Generation
-userSchema.methods.generateAuthToken = async function () {
+userSchema.methods.generateAuthToken = function () {
   const user = this; //Type Cast this
 
   const token = jwt.sign(
@@ -91,18 +91,16 @@ userSchema.methods.generateAuthToken = async function () {
     process.env.JWT_SECRET as string
   );
   user.tokens = user.tokens.concat({ token });
-  await user.save();
   return token;
 };
 
 // Genarate User Wallet ID
-userSchema.methods.generateWalletId = async function () {
-  const user = this  //Type Cast this
-  const wallet_id =  Math.random().toString(32).substring(2, 9)
-  user.wallet_id = wallet_id
-  await user.save()
-  return wallet_id
-}
+userSchema.methods.generateWalletId = function () {
+  const user = this; //Type Cast this
+  const wallet_id = Math.random().toString(32).substring(2, 9);
+  user.wallet_id = wallet_id;
+  return wallet_id;
+};
 
 //Removing sensitive datas from the user
 userSchema.methods.toJSON = function () {

@@ -14,7 +14,6 @@ function validator(schema: ObjectSchema, property: keyof Request) {
       next();
     } else {
       const { details } = error;
-      Logger.info(details);
       const message: string = details
         .map((i: ValidationErrorItem) => i.message)
         .join(",");

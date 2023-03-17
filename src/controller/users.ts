@@ -25,6 +25,7 @@ export default class Controller {
       const token = user.generateAuthToken();
       //Generate User Wallet ID
       user.generateWalletId();
+      await user.save();
 
       // Send Welcome Message to new user
       sendEmail({
