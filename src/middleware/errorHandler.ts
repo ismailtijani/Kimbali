@@ -32,13 +32,13 @@ export class ErrorHandler {
           message: error.message,
         },
       });
-      res.status(responseStatusCodes.INTERNAL_SERVER_ERROR).json({
-        STATUS: "FAILURE",
-        ERROR: {
-          message: "Internal Server Error",
-          stack: process.env.NODE_ENV === "development" ? error.stack : {},
-        },
-      });
+      // res.status(responseStatusCodes.INTERNAL_SERVER_ERROR).json({
+      //   STATUS: "FAILURE",
+      //   ERROR: {
+      //     message: "Internal Server Error",
+      //     stack: process.env.NODE_ENV === "development" ? error.stack : {},
+      //   },
+      // });
       process.exit(1);
     }
   }
