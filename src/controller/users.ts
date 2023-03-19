@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import sendEmail from "../email/email";
 import AppError from "../library/errorClass";
 import { IUser, responseStatusCodes } from "../library/interfaces";
+import Logger from "../library/logger";
 import { responseHelper } from "../library/responseHelper";
 import User from "../model/user";
 
@@ -39,7 +40,12 @@ export default class Controller {
         { user, token },
         res
       );
-    } catch (error) {
+    } catch (error: any) {
+      Logger.error(error);
+      if (error.name === "ValidationError")
+        return res
+          .status(responseStatusCodes.BAD_REQUEST)
+          .json({ name: error.name, message: error.message });
       next(error);
     }
   };

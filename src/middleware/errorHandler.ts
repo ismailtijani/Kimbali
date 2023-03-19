@@ -23,24 +23,18 @@ export class ErrorHandler {
     });
   };
   private handleCriticalError(error: Error, res?: Response) {
-    Logger.error(error);
     if (res) {
-      res.status(responseStatusCodes.BAD_REQUEST).json({
+      res.status(responseStatusCodes.INTERNAL_SERVER_ERROR).json({
         STATUS: "FAILURE",
         ERROR: {
           name: error.name,
-          message: error.message,
+          message: "Internal Server Error",
         },
       });
-      // res.status(responseStatusCodes.INTERNAL_SERVER_ERROR).json({
-      //   STATUS: "FAILURE",
-      //   ERROR: {
-      //     message: "Internal Server Error",
-      //     stack: process.env.NODE_ENV === "development" ? error.stack : {},
-      //   },
-      // });
-      process.exit(1);
     }
+    Logger.error(error);
+    Logger.warn("Application encountered a critical error. Exiting.....");
+    process.exit(1);
   }
 }
 

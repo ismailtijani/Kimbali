@@ -17,7 +17,7 @@ function validator(schema: ObjectSchema, property: keyof Request) {
       const message: string = details
         .map((i: ValidationErrorItem) => i.message)
         .join(",");
-      Logger.error(error);
+      Logger.error(`${error.name}: ${error.message}`);
       throw new AppError({
         message,
         statusCode: responseStatusCodes.UNPROCESSABLE,
