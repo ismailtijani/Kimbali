@@ -14,7 +14,7 @@ export default class AppError extends Error {
     this.statusCode = args.statusCode;
 
     if (args.isOperational !== undefined)
-      this.isOperational === args.isOperational;
+      this.isOperational = args.isOperational;
 
     Error.captureStackTrace(this);
   }

@@ -16,12 +16,19 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: [true, "Password is required"],
       trim: true,
-      minlength: [8, "Password must be at least 8"],
       validate: (value: string) => {
+        if (!validator.isLength(value, { min: 8, max: 9 })) {
+          throw new AppError({
+            name: "ValidationError",
+            message: "Length of the password should be between 8-20",
+            statusCode: responseStatusCodes.BAD_REQUEST,
+          });
+        }
         if (value.toLowerCase().includes("password"))
           throw new AppError({
             message: "You can't use the word password",
             statusCode: responseStatusCodes.BAD_REQUEST,
+            isOperational: true,
           });
       },
     },
@@ -31,13 +38,6 @@ const userSchema = new Schema<IUser>(
       required: true,
       unique: true,
       lowercase: true,
-      validate(mail: string) {
-        if (!validator.isEmail(mail))
-          throw new AppError({
-            message: "Invalid Email",
-            statusCode: responseStatusCodes.BAD_REQUEST,
-          });
-      },
     },
     phoneNumber: {
       type: Number,

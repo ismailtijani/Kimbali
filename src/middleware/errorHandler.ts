@@ -5,15 +5,17 @@ import { responseStatusCodes } from "../library/interfaces";
 
 export class ErrorHandler {
   private isTrustedError(error: Error | AppError) {
-    if (error instanceof AppError) return true;
+    if (error instanceof AppError) {
+      return true;
+    }
     return false;
   }
 
   public handleError(error: Error | AppError, res?: Response) {
-    if (this.isTrustedError(error)) {
+    if (this.isTrustedError(error) && res) {
       this.handleTrustedError(error as AppError, res as Response);
     } else {
-      this.handleCriticalError(error as Error, res);
+      this.handleCriticalError(error as Error, res as Response);
     }
   }
   private handleTrustedError = (error: AppError, res: Response) => {
