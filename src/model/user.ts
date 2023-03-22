@@ -17,13 +17,13 @@ const userSchema = new Schema<IUser>(
       required: [true, "Password is required"],
       trim: true,
       validate: (value: string) => {
-        if (!validator.isLength(value, { min: 8, max: 9 })) {
-          throw new AppError({
-            name: "ValidationError",
-            message: "Length of the password should be between 8-20",
-            statusCode: responseStatusCodes.BAD_REQUEST,
-          });
-        }
+        // if (!(validator.isLength(value, { min: 8, max: 20 }))) {
+        //   throw new AppError({
+        //     name: "ValidationError",
+        //     message: "Length of the password should be between 8-20",
+        //     statusCode: responseStatusCodes.BAD_REQUEST,
+        //   });
+        // }
         if (value.toLowerCase().includes("password"))
           throw new AppError({
             message: "You can't use the word password",

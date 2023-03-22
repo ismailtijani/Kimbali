@@ -10,7 +10,7 @@ const joiSchema = {
   }),
   login: Joi.object<ILogin>({
     email: Joi.string().email().required(),
-    password: Joi.string().min(8).max(20).required(),
+    password: Joi.string().required(),
   }),
 };
 

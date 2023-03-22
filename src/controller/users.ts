@@ -41,21 +41,24 @@ export default class Controller {
         res
       );
     } catch (error: any) {
-      Logger.error(error);
-      if (error.name === "ValidationError")
+      
+      if (error.name === "ValidationError"){
+        Logger.error(error);
         return res
           .status(responseStatusCodes.BAD_REQUEST)
           .json({ name: error.name, message: error.message });
+      }
+        
       next(error);
     }
   };
 
   static login: RequestHandler = (req, res, next) => {
+    try {
     const { email, password } = req.body as {
       email: IUser["email"];
       password: IUser["password"];
     };
-    try {
       const user = User.findByCredentials(email, password);
       const token = user.generateAuthToken();
       responseHelper.successResponse(res, { user, token });
