@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import AppError from "../library/errorClass";
 import { IUser, responseStatusCodes, UserModel } from "../library/interfaces";
+import crypto from "crypto"
 // import Logger from "../library/logger";
 
 const userSchema = new Schema<IUser>(
@@ -63,6 +64,8 @@ const userSchema = new Schema<IUser>(
         },
       },
     ],
+    resetPasswordToken: String,
+    resetPasswordExpire: Date
   },
   { timestamps: true }
 );
@@ -93,6 +96,26 @@ userSchema.methods.generateAuthToken = function () {
   user.tokens = user.tokens.concat({ token });
   return token;
 };
+
+// Generate and hash password token
+userSchema.methods.generateResetPasswordToken = async function (){
+  const user = this; //Type Cast this
+ // Generate token
+ const resetToken = crypto.randomBytes(20).toString("hex");
+
+ // Hash token and send to resetPassword token field
+ user.resetPasswordToken = crypto
+   .createHash("sha256")
+   .update(resetToken)
+   .digest("hex");
+
+ // Set expire
+ user.resetPasswordExpire = Date.now() + 30 * 60 * 1000;
+
+ await user.save();
+
+ return resetToken
+}
 
 // Genarate User Wallet ID
 userSchema.methods.generateWalletId = function () {

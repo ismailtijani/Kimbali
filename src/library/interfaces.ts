@@ -8,12 +8,15 @@ export interface IUser {
   balance?: number;
   wallet_id?: string;
   tokens: object[];
-  is_admin?: boolean
+  is_admin?: boolean;
+  resetPasswordToken?: string;
+  resetPasswordExpire?: Date;
 }
 
 export interface IUserMethods {
   generateAuthToken(): string;
-  generateWalletId():string
+  generateWalletId(): string;
+  generateResetPasswordToken(): string;
 }
 
 export interface UserModel extends Model<IUser, {}, IUserMethods> {
