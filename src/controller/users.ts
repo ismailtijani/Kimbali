@@ -5,6 +5,7 @@ import { IUser, responseStatusCodes } from "../library/interfaces";
 import Logger from "../library/logger";
 import { responseHelper } from "../library/responseHelper";
 import User from "../model/user";
+import crypto from "crypto";
 
 export default class Controller {
   static signup: RequestHandler = async (req, res, next) => {
@@ -83,8 +84,10 @@ export default class Controller {
     const resetURl = `${req.protocol}://${req.get(
       "host"
     )}/resetpassword/${resetToken}`;
-    const message = `You are receiving this email because you (or someone else) has requested the reset of a password. 
-  If it is you, Please click on the below link to change your password: \n\n ${resetURl}`;
+    //Create SMS message
+    const message = `Hi ${user.name} \n 
+    Please click on the following link ${resetURl} to reset your password. \n\n 
+    If you did not request this, please ignore this email and your password will remain unchanged.\n`;
     try {
       // Send reset URL to user via Mail
       sendEmail({
@@ -102,7 +105,35 @@ export default class Controller {
   };
 
   static resetPassword: RequestHandler = async (req, res, next) => {
-    const token = req.params.token
-    
-  }
+    const token = req.params.token;
+
+    // Hash token
+    const resetPasswordToken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+
+    try {
+      const user = await User.findOne({
+        resetPasswordToken,
+        resetPasswordExpire: { $gt: Date.now() },
+      });
+
+      if (!user)
+        throw new AppError({
+          message: "Invalid or Expired Token",
+          statusCode: responseStatusCodes.BAD_REQUEST,
+        });
+      // Set new password
+      user.password = req.body.password;
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpire = undefined;
+
+      await user.save();
+
+      return responseHelper.successResponse(res, user);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
