@@ -68,7 +68,19 @@ export default class Controller {
     }
   };
 
-  static forgetPassword: RequestHandler = async (req, res, next) => {
+  static logout: RequestHandler = async (req, res, next) => {
+    const user = req.user;
+    //Check through the user tokens to filter out the one that was used for auth on the device
+    user.tokens = user.tokens.filter((token: any) => token.token !== req.token);
+    try {
+      await user.save()
+      responseHelper.successResponse(res, "You've successfully logged out of this system")
+    } catch (error) {
+      next(error)
+    }
+  };
+
+  static forgetPassword: RequestHandler = async (req, res) => {
     const { email } = req.body as { email: IUser["email"] };
     // Search for user Account
     const user = await User.findOne({ email });
@@ -87,7 +99,7 @@ export default class Controller {
     //Create SMS message
     const message = `Hi ${user.name} \n 
     Please click on the following link ${resetURl} to reset your password. \n\n 
-    If you did not request this, please ignore this email and your password will remain unchanged.\n`;
+    If you did not request this, please disregard this email and no action will be taken.\n`;
     try {
       // Send reset URL to user via Mail
       sendEmail({
