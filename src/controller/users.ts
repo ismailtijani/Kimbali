@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import sendEmail from "../email/email";
 import AppError from "../library/errorClass";
-import { IUser, responseStatusCodes } from "../library/interfaces";
+import { IUser, responseStatusCodes, UserModel } from "../library/interfaces";
 import Logger from "../library/logger";
 import { responseHelper } from "../library/responseHelper";
 import User from "../model/user";
@@ -24,7 +24,7 @@ export default class Controller {
       //Create User account
       const user = await User.create(req.body);
       //Generate auth token
-      const token = user.generateAuthToken();
+      const token = await user.generateAuthToken();
       //Generate User Wallet ID
       user.generateWalletId();
       await user.save();
@@ -61,7 +61,7 @@ export default class Controller {
     try {
       const user = await User.findByCredentials(email, password);
       //Generate auth token
-      const token = user.generateAuthToken();
+      const token = await user.generateAuthToken();
       responseHelper.successResponse(res, { user, token });
     } catch (error) {
       next(error);
@@ -69,14 +69,43 @@ export default class Controller {
   };
 
   static logout: RequestHandler = async (req, res, next) => {
-    const user = req.user;
+    const user = req.user!;
     //Check through the user tokens to filter out the one that was used for auth on the device
     user.tokens = user.tokens.filter((token: any) => token.token !== req.token);
     try {
-      await user.save()
-      responseHelper.successResponse(res, "You've successfully logged out of this system")
+      await user.save();
+      responseHelper.successResponse(
+        res,
+        "You've successfully logged out of this system"
+      );
     } catch (error) {
-      next(error)
+      next(error);
+    }
+  };
+
+  static updateProfile: RequestHandler = async (req, res, next) => {
+    try {
+      const updates = Object.keys(req.body) as Array<keyof IUser>;
+      if (updates.length === 0)
+        throw new AppError({
+          message: "Invalid update!",
+          statusCode: responseStatusCodes.BAD_REQUEST,
+        });
+      const allowedUpdates = ["name", "email", "phoneNumber"];
+      const isValidOperation = updates.every((update) =>
+        allowedUpdates.includes(update)
+      );
+      if (!isValidOperation)
+        throw new AppError({
+          message: "Invalid update",
+          statusCode: responseStatusCodes.BAD_REQUEST,
+        });
+      const user: any = req.user!;
+      updates.forEach((update) => (user[update] = req.body[update]));
+      await user.save();
+      responseHelper.successResponse(res, user);
+    } catch (error) {
+      next(error);
     }
   };
 
@@ -91,11 +120,11 @@ export default class Controller {
       });
 
     //Generate reset Password Token
-    const resetToken = user.generateResetPasswordToken();
+    const resetToken = await user.generateResetPasswordToken();
     // Create reset url
     const resetURl = `${req.protocol}://${req.get(
       "host"
-    )}/resetpassword/${resetToken}`;
+    )}/forget_password/${resetToken}`;
     //Create SMS message
     const message = `Hi ${user.name} \n 
     Please click on the following link ${resetURl} to reset your password. \n\n 

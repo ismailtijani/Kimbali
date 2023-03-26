@@ -1,4 +1,15 @@
-import { HydratedDocument, Model } from "mongoose";
+import { HydratedDocument, Model, Document } from "mongoose";
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: UserDocument;
+      token?: string;
+    }
+  }
+}
+
+type UserDocument = IUser & Document;
 
 export interface IUser {
   name: string;
@@ -14,16 +25,16 @@ export interface IUser {
 }
 
 export interface IUserMethods {
-  generateAuthToken(): string;
+  generateAuthToken(): Promise<string>;
   generateWalletId(): string;
-  generateResetPasswordToken(): string;
+  generateResetPasswordToken(): Promise<string>;
 }
 
 export interface UserModel extends Model<IUser, {}, IUserMethods> {
   findByCredentials(
     email: string,
     password: string
-  ): HydratedDocument<IUser, IUserMethods>;
+  ): Promise<HydratedDocument<IUser, IUserMethods>>;
 }
 
 export interface ILogin {
@@ -34,11 +45,6 @@ export interface ILogin {
 export interface IDecode {
   _id: string;
 }
-
-// export interface customRequest extends Request {
-//   token: string;
-//   user: IUser;
-// }
 
 export interface AppErrorArgs {
   name?: string;

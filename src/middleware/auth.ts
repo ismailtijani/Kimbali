@@ -1,13 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import AppError from "../library/errorClass";
 import jwt from "jsonwebtoken";
-import { IDecode, IUser, responseStatusCodes } from "../library/interfaces";
+import { IDecode, responseStatusCodes } from "../library/interfaces";
 import User from "../model/user";
+import Logger from "../library/logger";
+import dotenv from "dotenv";
 
-interface customRequest extends Request {
-  token: string;
-  user: IUser;
-}
+dotenv.config();
 
 // Use OOP to create a class for Auth Middleware
 class Authentication {
@@ -15,12 +14,12 @@ class Authentication {
     // Get token from headers
     const token = req.header("Authorization")?.replace("Bearer ", "");
 
-    if (!token)
-      throw new AppError({
-        message: "Please Authenticate",
-        statusCode: responseStatusCodes.UNAUTHORIZED,
-      });
     try {
+      if (!token)
+        throw new AppError({
+          message: "Please Authenticate",
+          statusCode: responseStatusCodes.UNAUTHORIZED,
+        });
       //   Verify Token
       const decoded = <IDecode>jwt.verify(token, JWT_SECRET);
 
@@ -36,16 +35,21 @@ class Authentication {
           statusCode: responseStatusCodes.UNAUTHORIZED,
         });
       // Add user to request
-      (req as customRequest).user = user;
-      (req as customRequest).token = token;
+      req.user = user;
+      req.token = token;
       next();
-    } catch (error) {
+    } catch (error: any) {
+      if (error.name === "JsonWebTokenError")
+        return res.status(responseStatusCodes.BAD_REQUEST).json({
+          STATUS: "FAILURE",
+          ERROR: "Invalid Token",
+        });
       next(error);
     }
   }
 }
 
 // Fectching JsonwebToken secret
-const JWT_SECRET = process.env.JWT_SECRET || "secretKey";
+const JWT_SECRET = process.env.JWT_SECRET as string;
 
 export default Authentication.middleware;
