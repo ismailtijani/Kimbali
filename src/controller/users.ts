@@ -6,6 +6,7 @@ import Logger from "../library/logger";
 import { responseHelper } from "../library/responseHelper";
 import User from "../model/user";
 import crypto from "crypto";
+import sharp from "sharp";
 
 export default class Controller {
   static signup: RequestHandler = async (req, res, next) => {
@@ -68,16 +69,46 @@ export default class Controller {
     }
   };
 
-  static logout: RequestHandler = async (req, res, next) => {
+  static readProfile: RequestHandler = (req, res) => {
+    return responseHelper.successResponse(res, req.user);
+  };
+
+  static uploadAvatar: RequestHandler = async (req, res, next) => {
     const user = req.user!;
-    //Check through the user tokens to filter out the one that was used for auth on the device
-    user.tokens = user.tokens.filter((token: any) => token.token !== req.token);
     try {
+      const buffer = await sharp(req.file?.buffer)
+        .resize(250, 300)
+        .png()
+        .toBuffer();
+      user.avatar = buffer;
       await user.save();
-      responseHelper.successResponse(
-        res,
-        "You've successfully logged out of this system"
-      );
+      responseHelper.successResponse(res, "Image uploaded successfully");
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static viewAvatar: RequestHandler = async (req, res, next) => {
+    const user = req.user!;
+    try {
+      if (!user.avatar)
+        throw new AppError({
+          message: "No image uploaded, Upload now",
+          statusCode: responseStatusCodes.NOT_FOUND,
+        });
+      res.set("Content-Type", "Image/png");
+      responseHelper.successResponse(res, user.avatar);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static deleteAvatar: RequestHandler = async (req, res, next) => {
+    const user = req.user!;
+    try {
+      user.avatar = undefined;
+      await user.save();
+      responseHelper.successResponse(res, "Image deleted successfully");
     } catch (error) {
       next(error);
     }
@@ -104,6 +135,21 @@ export default class Controller {
       updates.forEach((update) => (user[update] = req.body[update]));
       await user.save();
       responseHelper.successResponse(res, user);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static logout: RequestHandler = async (req, res, next) => {
+    const user = req.user!;
+    //Check through the user tokens to filter out the one that was used for auth on the device
+    user.tokens = user.tokens.filter((token: any) => token.token !== req.token);
+    try {
+      await user.save();
+      responseHelper.successResponse(
+        res,
+        "You've successfully logged out of this system"
+      );
     } catch (error) {
       next(error);
     }
@@ -173,6 +219,22 @@ export default class Controller {
       await user.save();
 
       return responseHelper.successResponse(res, user);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public deleteProfile: RequestHandler = async (req, res, next) => {
+    const user = req.user!;
+    try {
+      await user.deleteOne();
+      // Send Goodbye message to exiting user
+      sendEmail({
+        email: user.email,
+        subject: "Sorry to see you go!",
+        message: `Goodbye ${user.name}. I hope to see you sometime soon`,
+      });
+      responseHelper.successResponse(res, "Account deactivated successfully");
     } catch (error) {
       next(error);
     }

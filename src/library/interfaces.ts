@@ -9,13 +9,15 @@ declare global {
   }
 }
 
-type UserDocument = IUser & Document;
+export type UserDocument = IUser & Document;
+// interface UserDocument extends IUser, Document {}
 
 export interface IUser {
   name: string;
   email: string;
   password: string;
   phoneNumber: number;
+  avatar?: Buffer | undefined;
   balance?: number;
   wallet_id?: string;
   tokens: object[];

@@ -49,6 +49,7 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
       type: Number,
       required: true,
     },
+    avatar: Buffer,
     balance: {
       type: Number,
       default: 0,

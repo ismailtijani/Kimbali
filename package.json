@@ -19,7 +19,9 @@
     "helmet": "^6.0.1",
     "joi": "^17.8.3",
     "jsonwebtoken": "^9.0.0",
-    "mongoose": "^7.0.1"
+    "mongoose": "^7.0.1",
+    "multer": "^1.4.5-lts.1",
+    "sharp": "^0.32.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
@@ -27,6 +29,7 @@
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/jsonwebtoken": "^9.0.1",
+    "@types/multer": "^1.4.7",
     "@types/nodemailer": "^6.4.7",
     "@types/validator": "^13.7.14",
     "chalk": "^4.1.2",

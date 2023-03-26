@@ -25,7 +25,7 @@ class UserRoutes {
     );
     //Using a single line of code for the authetication middleware"
     this.router.use(auth);
-    // this.router.get("/profile", userController.readProfile);
+    this.router.get("/profile", userController.readProfile);
     this.router.patch("/update_profile", userController.updateProfile);
     this.router.post("/logout", userController.logout);
     this.router.post("/forget_password", userController.forgetPassword);
