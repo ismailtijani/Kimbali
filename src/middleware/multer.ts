@@ -2,8 +2,8 @@ import multer from "multer";
 import AppError from "../library/errorClass";
 import { responseStatusCodes } from "../library/interfaces";
 
-class Multer {
-  static upload() {
+
+  const upload = 
     multer({
       limits: { fileSize: 2000000 },
       fileFilter(req, file, cb) {
@@ -18,7 +18,5 @@ class Multer {
         cb(null, true);
       },
     });
-  }
-}
 
-export default Multer.upload;
+export default upload;

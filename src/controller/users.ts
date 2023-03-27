@@ -224,7 +224,7 @@ export default class Controller {
     }
   };
 
-  public deleteProfile: RequestHandler = async (req, res, next) => {
+  static deleteProfile: RequestHandler = async (req, res, next) => {
     const user = req.user!;
     try {
       await user.deleteOne();
