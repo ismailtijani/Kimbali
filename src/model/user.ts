@@ -77,10 +77,10 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 );
 
 // User document relationship with another document (to enable populate)
-userSchema.virtual("Document name", {
-  ref: "Model Name",
+userSchema.virtual("transactions", {
+  ref: "Transaction",
   localField: "_id",
-  foreignField: "owner_id",
+  foreignField: "sender",
 });
 
 //Hashing User plain text password before saving

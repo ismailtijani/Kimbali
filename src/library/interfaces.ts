@@ -1,4 +1,4 @@
-import { HydratedDocument, Model, Document } from "mongoose";
+import { HydratedDocument, Model, Document, Types } from "mongoose";
 
 declare global {
   namespace Express {
@@ -8,9 +8,6 @@ declare global {
     }
   }
 }
-
-export type UserDocument = IUser & Document;
-// interface UserDocument extends IUser, Document {}
 
 export interface IUser {
   name: string;
@@ -25,6 +22,29 @@ export interface IUser {
   resetPasswordToken?: string;
   resetPasswordExpire?: Date;
 }
+
+export interface ITransaction {
+  sender: Types.ObjectId;
+  transaction_type: TransactionType;
+  transaction_status?: TransactionStatus;
+  receiver_id: string;
+  amount: number;
+  transaction_fee?: number;
+  balance_before: number;
+  newBalance: number;
+  description?: string;
+}
+
+enum TransactionType {
+  CREDIT = "credit",
+  DEBIT = "debit",
+}
+
+enum TransactionStatus {
+  SUCCESS = "success",
+  FAILURE = "failed",
+}
+export type UserDocument = IUser & Document;
 
 export interface IUserMethods {
   generateAuthToken(): Promise<string>;
