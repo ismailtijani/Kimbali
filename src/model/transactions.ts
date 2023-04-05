@@ -3,7 +3,7 @@ import { ITransaction } from "../library/interfaces";
 
 const TransactionSchema = new Schema<ITransaction>(
   {
-    sender: {
+    sender_id: {
       type: Schema.Types.ObjectId,
       required: true,
       ref: "User",

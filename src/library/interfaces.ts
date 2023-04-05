@@ -24,7 +24,7 @@ export interface IUser {
 }
 
 export interface ITransaction {
-  sender: Types.ObjectId;
+  sender_id: Types.ObjectId;
   transaction_type: TransactionType;
   transaction_status?: TransactionStatus;
   receiver_id: string;

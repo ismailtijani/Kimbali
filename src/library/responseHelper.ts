@@ -8,11 +8,15 @@ export class responseHelper {
     });
   }
 
-  public static createdResponse(res: Response, message: string, DATA?: any) {
+  public static createdResponse(res: Response, message?: string, DATA?: any) {
     res.status(responseStatusCodes.CREATED).json({
       STATUS: "SUCCESS",
       MESSAGE: message,
       DATA,
     });
+  }
+
+  static transactionSuccessResponse(res: Response, DATA?: any) {
+    res.status(responseStatusCodes.CREATED).json(DATA);
   }
 }

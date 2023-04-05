@@ -12,7 +12,12 @@ const joiSchema = {
     email: Joi.string().email().required(),
     password: Joi.string().required(),
   }),
-  fundWallet: Joi.object({ amount: Joi.number().required() }),
+  fundWallet: Joi.object({ amount: Joi.number().min(10).required() }),
+  transferFunds: Joi.object({
+    amount: Joi.number().min(100).required(),
+    receiver_id: Joi.string().required(),
+  }),
+  withdrawFunds: Joi.object({ amount: Joi.number().min(10).required() }),
 };
 
 export default joiSchema;

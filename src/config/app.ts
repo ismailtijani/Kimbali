@@ -6,6 +6,7 @@ import compression from "compression";
 import mongoSetup from "../database/mongodb";
 import errorHandler from "../middleware/errorHandler";
 import userRouter from "../routes/users";
+import transactionRouter from "../routes/transactions";
 
 dotenv.config();
 
@@ -45,6 +46,7 @@ class App {
 
     // Other routes
     userRouter(this.app);
+    transactionRouter(this.app);
 
     // set up global error handling here
     this.app.use(
