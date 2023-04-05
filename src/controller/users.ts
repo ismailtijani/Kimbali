@@ -37,11 +37,10 @@ export default class Controller {
         message: `Thanks for choosing Kimbali ${name}, do enjoy seamless transactions`,
       });
 
-      responseHelper.createdResponse(
-        "Account created succesfully",
-        { user, token },
-        res
-      );
+      responseHelper.createdResponse(res, "Account created succesfully", {
+        user,
+        token,
+      });
     } catch (error: any) {
       if (error.name === "ValidationError") {
         Logger.error(error);

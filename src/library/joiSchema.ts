@@ -12,6 +12,7 @@ const joiSchema = {
     email: Joi.string().email().required(),
     password: Joi.string().required(),
   }),
+  fundWallet: Joi.object({ amount: Joi.number().required() }),
 };
 
 export default joiSchema;

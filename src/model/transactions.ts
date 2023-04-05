@@ -1,6 +1,7 @@
 import { model, Schema } from "mongoose";
+import { ITransaction } from "../library/interfaces";
 
-const TransactionSchema = new Schema(
+const TransactionSchema = new Schema<ITransaction>(
   {
     sender: {
       type: Schema.Types.ObjectId,
@@ -45,6 +46,6 @@ const TransactionSchema = new Schema(
   { timestamps: true }
 );
 
-const Transaction = model("Transaction", TransactionSchema);
+const Transaction = model<ITransaction>("Transaction", TransactionSchema);
 
 export default Transaction;
