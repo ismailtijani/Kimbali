@@ -3,8 +3,8 @@ import { ITransaction, responseStatusCodes } from "../library/interfaces";
 import User from "../model/user";
 import Transaction from "../model/transactions";
 import { responseHelper } from "../library/responseHelper";
-import Logger from "../library/logger";
 import AppError from "../library/errorClass";
+import validObjectId from "../library/validID";
 
 export default class Controller {
   //Fund AUthenticated user wallet account
@@ -54,6 +54,7 @@ export default class Controller {
     const kimbali_transaction_fee = amount * 0.01;
     const balance_before = sender.balance!;
     const newBalance = balance_before - (amount + kimbali_transaction_fee);
+
     try {
       //Check if there is an account with the wallet id
       const receiver = await User.findOne({ wallet_id: receiver_id });
@@ -100,9 +101,107 @@ export default class Controller {
     }
   };
 
-  //A User can Withdrawl funds thier own account
+  //A User can Withdrawl funds from thier own account
   static withdrawlFunds: RequestHandler = async (req, res, next) => {
-    const amount = req.body as { amount: ITransaction["amount"] };
+    const { amount } = req.body as { amount: ITransaction["amount"] };
     const user = req.user!;
+
+    //Charges: 1% of the amount to be transferred
+    const kimbali_transaction_fee = amount * 0.01;
+    const balance_before = user.balance!;
+    const newBalance = balance_before - (amount + kimbali_transaction_fee);
+
+    try {
+      if (balance_before! < amount)
+        throw new AppError({
+          message: `Insufficient funds in your wallet. Please toUp`,
+          statusCode: responseStatusCodes.UNPROCESSABLE,
+        });
+
+      await Transaction.create({
+        sender_id: user._id,
+        amount,
+        transaction_type: "debit",
+        transaction_fee: kimbali_transaction_fee,
+        transaction_status: "success",
+        balance_before,
+        newBalance,
+        receiver_id: user._id,
+        description: `Hi ${user.name}, your wallet have been debited with $${amount}.`,
+      });
+      //Update user account balance
+      user.balance = newBalance;
+      user.save();
+
+      return responseHelper.successResponse(
+        res,
+        "Funds withdrawn successfully from your wallet"
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // A user can view their account balance.
+  static viewBalance: RequestHandler = (req, res) => {
+    const balance = req.user?.balance!;
+    return responseHelper.successResponse(res, balance);
+  };
+
+  // A user can view their transaction history.
+  static viewTransactionHistory: RequestHandler = async (req, res, next) => {
+    try {
+      const transactions = await Transaction.find({});
+      if (!transactions)
+        throw new AppError({
+          message: "No transaction record, do make some transactions",
+          statusCode: responseStatusCodes.NO_CONTENT,
+        });
+
+      return responseHelper.successResponse(res, transactions);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // The user can view the details of a specific transaction.
+  static viewTransactionDetails: RequestHandler = async (req, res, next) => {
+    const transaction_id = req.params;
+//Check Validity of transaction Id
+    const isValidId = validObjectId(transaction_id);
+
+    try {
+      if (!isValidId)
+        throw new AppError({
+          message: "Invalid Input, Please check details",
+          statusCode: responseStatusCodes.BAD_REQUEST,
+          name: "ValidationError",
+        });
+      const transaction = await Transaction.findById(transaction_id);
+
+      if (!transaction)
+        throw new AppError({
+          message: "Transaction not found. Please check details",
+          statusCode: responseStatusCodes.BAD_REQUEST,
+        });
+
+      return responseHelper.successResponse(res, transaction);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  //View all transactions
+  static viewTransactions: RequestHandler = async (req, res, next) => {
+    try {
+      const transactions = await Transaction.find({});
+      if (!transactions)
+        throw new AppError({
+          message: "No transaction history yet. Do make some transactions😊",
+          statusCode: responseStatusCodes.NOT_FOUND,
+        });
+    } catch (error) {
+      next(error);
+    }
   };
 }
