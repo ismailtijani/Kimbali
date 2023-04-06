@@ -167,7 +167,7 @@ export default class Controller {
   // The user can view the details of a specific transaction.
   static viewTransactionDetails: RequestHandler = async (req, res, next) => {
     const transaction_id = req.params;
-//Check Validity of transaction Id
+    //Check Validity of transaction Id
     const isValidId = validObjectId(transaction_id);
 
     try {
