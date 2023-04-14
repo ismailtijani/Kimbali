@@ -80,7 +80,7 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 userSchema.virtual("transactions", {
   ref: "Transaction",
   localField: "_id",
-  foreignField: "sender",
+  foreignField: "sender_id",
 });
 
 //Hashing User plain text password before saving

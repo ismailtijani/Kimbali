@@ -21,6 +21,7 @@ export interface IUser {
   is_admin?: boolean;
   resetPasswordToken?: string;
   resetPasswordExpire?: Date;
+  transactions?: ITransaction[];
 }
 
 export interface ITransaction {
@@ -44,9 +45,14 @@ enum TransactionStatus {
   SUCCESS = "success",
   FAILURE = "failed",
 }
+export type IMatch = {
+  transaction_type: "credit" | "debit";
+};
+
 export type UserDocument = IUser & Document;
 
 export interface IUserMethods {
+  transactions?: ITransaction[];
   generateAuthToken(): Promise<string>;
   generateWalletId(): string;
   generateResetPasswordToken(): Promise<string>;

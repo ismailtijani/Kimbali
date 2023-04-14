@@ -90,7 +90,7 @@ export default class Controller {
   static viewAvatar: RequestHandler = async (req, res, next) => {
     const user = req.user!;
     try {
-      if (!user.avatar)
+      if (!user || !user.avatar)
         throw new AppError({
           message: "No image uploaded, Upload now",
           statusCode: responseStatusCodes.NOT_FOUND,

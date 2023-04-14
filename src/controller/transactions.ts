@@ -1,5 +1,10 @@
 import { RequestHandler } from "express";
-import { ITransaction, responseStatusCodes } from "../library/interfaces";
+import {
+  ITransaction,
+  responseStatusCodes,
+  IMatch,
+  IUser,
+} from "../library/interfaces";
 import User from "../model/user";
 import Transaction from "../model/transactions";
 import { responseHelper } from "../library/responseHelper";
@@ -10,8 +15,8 @@ export default class Controller {
   //Fund AUthenticated user wallet account
   static fundWallet: RequestHandler = async (req, res, next) => {
     const { amount } = req.body as { amount: ITransaction["amount"] };
-    const sender = req.user!;
-    const sender_id = sender._id;
+    const user = req.user!;
+    const sender_id = user._id;
     //Zero naira charge if funding wallet
     const kimbali_transaction_fee = amount * 0;
 
@@ -20,9 +25,9 @@ export default class Controller {
 
     try {
       //Update user account balance
-      const balance_before = sender.balance!;
-      sender.balance = sender.balance! + Number(amount);
-      sender.save();
+      const balance_before = user.balance!;
+      user.balance = user.balance! + Number(amount);
+      user.save();
 
       //Create Transaction document
       await Transaction.create({
@@ -32,9 +37,9 @@ export default class Controller {
         transaction_fee: kimbali_transaction_fee,
         transaction_status: "success",
         balance_before,
-        newBalance: sender.balance,
-        receiver_id: sender.wallet_id,
-        description: `Hi ${sender.name}, your wallet have been funded with $${amount}.`,
+        newBalance: user.balance,
+        receiver_id: user.wallet_id,
+        description: `Hi ${user.name}, your wallet have been funded with #${amount}.`,
       });
 
       return responseHelper.successResponse(res, "Wallet funded successfully");
@@ -102,7 +107,7 @@ export default class Controller {
   };
 
   //A User can Withdrawl funds from thier own account
-  static withdrawlFunds: RequestHandler = async (req, res, next) => {
+  static withdrawFunds: RequestHandler = async (req, res, next) => {
     const { amount } = req.body as { amount: ITransaction["amount"] };
     const user = req.user!;
 
@@ -148,13 +153,39 @@ export default class Controller {
     return responseHelper.successResponse(res, balance);
   };
 
-  // A user can view their transaction history.
+  // A USER CAN VIEW THEIR TRANSACTION HISTORY.
+
+  //GET /transaction/transaction_history?transaction_type=debit     ======>>>>> FILTER
+  //GET /transaction/transaction_history?limit=2&skip=2             ======>>>>> PAGINATION
+  //GET /transaction/transaction_history?sortBy=createdAt:desc      ======>>>>> SORT
   static viewTransactionHistory: RequestHandler = async (req, res, next) => {
+    const match = {} as IMatch;
+    const sort: any = {};
+
+    //Check if user is quering by transaction type
+    if (req.query.transaction_type)
+      match.transaction_type =
+        req.query.transaction_type === "credit" ? "credit" : "debit";
+    //Check if user is sorting in ascending or descending order
+    if (req.query.sortBy) {
+      const splitted = (req.query.sortBy as string).split(":");
+      sort[splitted[0]] = splitted[1] === "desc" ? -1 : 1;
+    }
+
     try {
-      const transactions = await Transaction.find({});
-      if (!transactions)
+      await req.user?.populate({
+        path: "transactions",
+        match,
+        options: {
+          limit: parseInt(req.query.limit as string),
+          skip: parseInt(req.query.skip as string),
+          sort,
+        },
+      });
+      const transactions = req.user?.transactions;
+      if (transactions?.length === 0)
         throw new AppError({
-          message: "No transaction record, do make some transactions",
+          message: "No transaction record, do make some transactions 😊",
           statusCode: responseStatusCodes.NO_CONTENT,
         });
 
@@ -166,12 +197,11 @@ export default class Controller {
 
   // The user can view the details of a specific transaction.
   static viewTransactionDetails: RequestHandler = async (req, res, next) => {
-    const transaction_id = req.params;
-    //Check Validity of transaction Id
-    const isValidId = validObjectId(transaction_id);
+    const transaction_id = req.params.transaction_id;
 
     try {
-      if (!isValidId)
+      //Check Validity of transaction Id
+      if (!validObjectId(transaction_id))
         throw new AppError({
           message: "Invalid Input, Please check details",
           statusCode: responseStatusCodes.BAD_REQUEST,
@@ -181,25 +211,11 @@ export default class Controller {
 
       if (!transaction)
         throw new AppError({
-          message: "Transaction not found. Please check details",
-          statusCode: responseStatusCodes.BAD_REQUEST,
+          message: "No Transaction found",
+          statusCode: responseStatusCodes.NOT_FOUND,
         });
 
       return responseHelper.successResponse(res, transaction);
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  //View all transactions
-  static viewTransactions: RequestHandler = async (req, res, next) => {
-    try {
-      const transactions = await Transaction.find({});
-      if (!transactions)
-        throw new AppError({
-          message: "No transaction history yet. Do make some transactions😊",
-          statusCode: responseStatusCodes.NOT_FOUND,
-        });
     } catch (error) {
       next(error);
     }
