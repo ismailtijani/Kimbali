@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import sendEmail from "../email/email";
 import AppError from "../library/errorClass";
-import { IUser, responseStatusCodes, UserModel } from "../library/interfaces";
+import { IUser, responseStatusCodes } from "../library/interfaces";
 import Logger from "../library/logger";
 import { responseHelper } from "../library/responseHelper";
 import User from "../model/user";
@@ -62,7 +62,7 @@ export default class Controller {
       const user = await User.findByCredentials(email, password);
       //Generate auth token
       const token = await user.generateAuthToken();
-      responseHelper.successResponse(res, { user, token });
+      responseHelper.successResponse(res, token);
     } catch (error) {
       next(error);
     }
@@ -73,30 +73,31 @@ export default class Controller {
   };
 
   static uploadAvatar: RequestHandler = async (req, res, next) => {
-    const user = req.user!;
     try {
+      const user = req.user!;
       const buffer = await sharp(req.file?.buffer)
-        .resize(250, 300)
+        .resize(250, 250)
         .png()
         .toBuffer();
       user.avatar = buffer;
       await user.save();
+
       responseHelper.successResponse(res, "Image uploaded successfully");
-    } catch (error) {
+    } catch (error: any) {
       next(error);
     }
   };
 
   static viewAvatar: RequestHandler = async (req, res, next) => {
-    const user = req.user!;
     try {
-      if (!user || !user.avatar)
+      const user = req.user!;
+      if (!user.avatar)
         throw new AppError({
           message: "No image uploaded, Upload now",
           statusCode: responseStatusCodes.NOT_FOUND,
         });
       res.set("Content-Type", "Image/png");
-      responseHelper.successResponse(res, user.avatar);
+      res.status(200).send(user.avatar);
     } catch (error) {
       next(error);
     }
@@ -191,7 +192,7 @@ export default class Controller {
   };
 
   static resetPassword: RequestHandler = async (req, res, next) => {
-    const token = req.params.token;
+    const { token } = req.params;
 
     // Hash token
     const resetPasswordToken = crypto
@@ -217,7 +218,7 @@ export default class Controller {
 
       await user.save();
 
-      return responseHelper.successResponse(res, user);
+      return responseHelper.successResponse(res, "Password reset successfuly");
     } catch (error) {
       next(error);
     }
@@ -233,7 +234,10 @@ export default class Controller {
         subject: "Sorry to see you go!",
         message: `Goodbye ${user.name}. I hope to see you sometime soon`,
       });
-      responseHelper.successResponse(res, "Account deactivated successfully");
+      return responseHelper.successResponse(
+        res,
+        "Account deactivated successfully"
+      );
     } catch (error) {
       next(error);
     }

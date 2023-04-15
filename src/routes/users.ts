@@ -3,7 +3,7 @@ import userController from "../controller/users";
 import validator from "../middleware/validator";
 import joiSchema from "../library/joiSchema";
 import auth from "../middleware/auth";
-import upload from "../middleware/multer"
+import upload from "../middleware/multer";
 class UserRoutes {
   public router: Router;
 
@@ -23,13 +23,17 @@ class UserRoutes {
       validator(joiSchema.login, "body"),
       userController.login
     );
-    //Using a single line of code for the authetication middleware"
+    //Every routes below will require authentication
     this.router.use(auth);
     this.router.get("/profile", userController.readProfile);
-    this.router.patch("/update_profile",  userController.updateProfile);
-    this.router.post("/profile/avatar", upload.single("avatar") ,userController.uploadAvatar);
-    this.router.get("/profile/view_avatar",  userController.viewAvatar);
-    this.router.delete("/profile/delete_avatar",  userController.deleteAvatar);
+    this.router.patch("/update_profile", userController.updateProfile);
+    this.router.post(
+      "/profile/avatar",
+      upload.single("avatar"),
+      userController.uploadAvatar
+    );
+    this.router.get("/profile/view_avatar", userController.viewAvatar);
+    this.router.delete("/profile/delete_avatar", userController.deleteAvatar);
     this.router.post("/logout", userController.logout);
     this.router.post("/forget_password", userController.forgetPassword);
     this.router.post("/reset_password/:token", userController.resetPassword);

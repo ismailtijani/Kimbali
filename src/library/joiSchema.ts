@@ -18,7 +18,6 @@ const joiSchema = {
     receiver_id: Joi.string().required(),
   }),
   withdrawFunds: Joi.object({ amount: Joi.number().min(10).required() }),
-  viewTransaction: Joi.object({id: Joi.string().required()})
 };
 
 export default joiSchema;

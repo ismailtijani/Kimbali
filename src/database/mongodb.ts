@@ -4,11 +4,6 @@ import { mongoUrl } from "../config/app";
 import errorHandler from "../middleware/errorHandler";
 
 class MongoDB {
-  //   public Url =
-  //     process.env.NODE_ENV === "development"
-  //       ? `mongodb://127.0.0.1:27017/Loan-App`
-  //       : (process.env.MONGODB_URL as string);
-
   static async connect() {
     try {
       await mongoose

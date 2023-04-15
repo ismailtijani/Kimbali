@@ -41,7 +41,7 @@ class App {
     // routes
     // set home route
     this.app.get("/", (req, res) => {
-      res.status(200).json({ message: "Welcome to CashApp API" });
+      res.status(200).json({ message: "Welcome to Kimbali API" });
     });
 
     // Other routes
@@ -60,7 +60,7 @@ class App {
 export const PORT = process.env.PORT || 3000;
 export const mongoUrl =
   process.env.NODE_ENV === "development"
-    ? `mongodb://127.0.0.1:27017/Loan-App`
+    ? `mongodb://127.0.0.1:27017/Kimbali-Api`
     : (process.env.MONGODB_URL as string);
 
 export default new App().app;

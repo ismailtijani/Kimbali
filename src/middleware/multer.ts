@@ -3,7 +3,9 @@ import AppError from "../library/errorClass";
 import { responseStatusCodes } from "../library/interfaces";
 
 const upload = multer({
-  limits: { fileSize: 2000000 },
+  limits: {
+    fileSize: 2000000,
+  },
   fileFilter(req, file, cb) {
     if (!file.originalname.match(/\.(png|jpg|jpeg)$/)) {
       return cb(

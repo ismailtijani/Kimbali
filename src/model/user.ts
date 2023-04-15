@@ -1,5 +1,4 @@
 import { Schema, model } from "mongoose";
-import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import AppError from "../library/errorClass";
@@ -7,10 +6,12 @@ import {
   IUser,
   IUserMethods,
   responseStatusCodes,
+  UserDocument,
   UserModel,
 } from "../library/interfaces";
 import crypto from "crypto";
-// import Logger from "../library/logger";
+import Transaction from "./transactions";
+import Logger from "../library/logger";
 
 const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   {
@@ -23,13 +24,6 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
       required: [true, "Password is required"],
       trim: true,
       validate: (value: string) => {
-        // if (!(validator.isLength(value, { min: 8, max: 20 }))) {
-        //   throw new AppError({
-        //     name: "ValidationError",
-        //     message: "Length of the password should be between 8-20",
-        //     statusCode: responseStatusCodes.BAD_REQUEST,
-        //   });
-        // }
         if (value.toLowerCase().includes("password"))
           throw new AppError({
             message: "You can't use the word password",
@@ -84,8 +78,8 @@ userSchema.virtual("transactions", {
 });
 
 //Hashing User plain text password before saving
-userSchema.pre("save", async function (next) {
-  const user = this; //Type cast this
+userSchema.pre<UserDocument>("save", async function (next) {
+  const user = this;
   if (user.isModified("password"))
     user.password = await bcrypt.hash(user.password, 8);
   next();
@@ -93,7 +87,7 @@ userSchema.pre("save", async function (next) {
 
 // User Token Generation
 userSchema.methods.generateAuthToken = async function () {
-  const user = this; //Type Cast this
+  const user = this;
 
   const token = jwt.sign(
     { _id: user._id.toString() },
@@ -106,7 +100,7 @@ userSchema.methods.generateAuthToken = async function () {
 
 // Generate and hash password token
 userSchema.methods.generateResetPasswordToken = async function () {
-  const user = this; //Type Cast this
+  const user = this;
   // Generate token
   const resetToken = crypto.randomBytes(20).toString("hex");
 
@@ -126,7 +120,7 @@ userSchema.methods.generateResetPasswordToken = async function () {
 
 // Genarate User Wallet ID
 userSchema.methods.generateWalletId = function () {
-  const user = this; //Type Cast this
+  const user = this;
   const wallet_id = Math.random().toString(32).substring(2, 9);
   user.wallet_id = wallet_id;
   return wallet_id;
@@ -134,10 +128,11 @@ userSchema.methods.generateWalletId = function () {
 
 //Removing sensitive datas from the user
 userSchema.methods.toJSON = function () {
-  const user = this; //Type cast this
+  const user = this;
   const userObject = user.toObject();
   delete userObject.password;
   delete userObject.tokens;
+  delete userObject.avatar;
   return userObject;
 };
 
@@ -161,15 +156,15 @@ userSchema.statics.findByCredentials = async (
   return user;
 };
 
-//Deleting User's records upon Deleting User Profile
-// userSchema.pre("remove", async function (next) {
-//     const user = this;
-//     await Model.deleteMany({ owner_id: user._id });
-//     Logger.warn(
-//       `All *** created by ${user.name} has been deleted as the user deleted thier account`
-//     );
-//     next();
-//   });
+// Deleting User's records upon Deleting User Profile
+userSchema.pre<UserDocument>("remove", async function (next) {
+  const user = this;
+  await Transaction.deleteMany({ sender_id: user._id });
+  Logger.warn(
+    `All transaction records created by ${user.name} has been deleted as the user deleted thier account`
+  );
+  next();
+});
 
 //Create a User Model
 const User = model<IUser, UserModel>("User", userSchema);

@@ -37,6 +37,14 @@ class TransactionRoutes {
       "/transaction_details/:transaction_id",
       TransactionController.viewTransactionDetails
     );
+    this.router.get(
+      "/totalamount_credited",
+      TransactionController.totalAmountCredited
+    );
+    this.router.get(
+      "/totalamount_debited",
+      TransactionController.totalAmountDebited
+    );
   }
 }
 

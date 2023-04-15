@@ -3,7 +3,6 @@ import AppError from "../library/errorClass";
 import jwt from "jsonwebtoken";
 import { IDecode, responseStatusCodes } from "../library/interfaces";
 import User from "../model/user";
-import Logger from "../library/logger";
 import dotenv from "dotenv";
 
 dotenv.config();

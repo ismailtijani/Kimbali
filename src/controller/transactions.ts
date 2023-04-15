@@ -3,7 +3,6 @@ import {
   ITransaction,
   responseStatusCodes,
   IMatch,
-  IUser,
 } from "../library/interfaces";
 import User from "../model/user";
 import Transaction from "../model/transactions";
@@ -61,6 +60,12 @@ export default class Controller {
     const newBalance = balance_before - (amount + kimbali_transaction_fee);
 
     try {
+      //Prevent User from transfering funds to oneself
+      if (sender.wallet_id === receiver_id)
+        throw new AppError({
+          message: "Invalid transaction",
+          statusCode: responseStatusCodes.UNPROCESSABLE,
+        });
       //Check if there is an account with the wallet id
       const receiver = await User.findOne({ wallet_id: receiver_id });
       if (!receiver)
@@ -83,7 +88,7 @@ export default class Controller {
         balance_before,
         newBalance,
         receiver_id,
-        description: `Hi ${sender.name}, your wallet have been debited with $${amount}.`,
+        description: `Hi ${sender.name}, your wallet have been debited with #${amount}.`,
       });
       //Update user account balance
       receiver.balance = receiver.balance! + Number(amount);
@@ -93,10 +98,10 @@ export default class Controller {
       //Send Success response to User
       const Data = {
         status: "SUCCESS",
-        Transfer: `-$${amount}`,
-        VAT: kimbali_transaction_fee,
+        Transfer: `-#${amount}`,
         Account_Number: receiver_id,
         Account_Name: receiver.name,
+        VAT: kimbali_transaction_fee,
         Transaction_id: transaction._id.toString(),
         Description: `Funds transferred successfully to ${receiver.name}`,
       };
@@ -132,7 +137,7 @@ export default class Controller {
         balance_before,
         newBalance,
         receiver_id: user._id,
-        description: `Hi ${user.name}, your wallet have been debited with $${amount}.`,
+        description: `Hi ${user.name}, your wallet have been debited with #${amount}.`,
       });
       //Update user account balance
       user.balance = newBalance;
@@ -150,7 +155,7 @@ export default class Controller {
   // A user can view their account balance.
   static viewBalance: RequestHandler = (req, res) => {
     const balance = req.user?.balance!;
-    return responseHelper.successResponse(res, balance);
+    return responseHelper.successResponse(res, `Your balance is #${balance}`);
   };
 
   // A USER CAN VIEW THEIR TRANSACTION HISTORY.
@@ -182,6 +187,7 @@ export default class Controller {
           sort,
         },
       });
+      //Get all user transactions
       const transactions = req.user?.transactions;
       if (transactions?.length === 0)
         throw new AppError({
@@ -197,7 +203,7 @@ export default class Controller {
 
   // The user can view the details of a specific transaction.
   static viewTransactionDetails: RequestHandler = async (req, res, next) => {
-    const transaction_id = req.params.transaction_id;
+    const { transaction_id } = req.params;
 
     try {
       //Check Validity of transaction Id
@@ -216,6 +222,50 @@ export default class Controller {
         });
 
       return responseHelper.successResponse(res, transaction);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static totalAmountCredited: RequestHandler = async (req, res, next) => {
+    try {
+      //Get all transactions made by the user
+      await req.user?.populate({
+        path: "transactions",
+        match: { transaction_type: "credit" },
+      });
+      const transactions = req.user?.transactions;
+      //Sum up all credit amount
+      let totalcredit = 0;
+      transactions?.forEach(
+        (transaction) => (totalcredit += transaction.amount)
+      );
+      return responseHelper.successResponse(
+        res,
+        `Total amount credited is #${totalcredit}`
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  static totalAmountDebited: RequestHandler = async (req, res, next) => {
+    try {
+      //Get all transactions made by the user
+      await req.user?.populate({
+        path: "transactions",
+        match: { transaction_type: "debit" },
+      });
+      const transactions = req.user?.transactions;
+      //Sum up the debit amount
+      let totalDebit = 0;
+      transactions?.forEach(
+        (transaction) => (totalDebit += transaction.amount)
+      );
+      return responseHelper.successResponse(
+        res,
+        `The total amount debited is #${totalDebit}`
+      );
     } catch (error) {
       next(error);
     }
