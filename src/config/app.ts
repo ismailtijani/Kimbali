@@ -24,11 +24,9 @@ class App {
     this.app.use(
       cors({
         origin:
-          process.env.NODE_ENV !== "development"
-            ? process.env.PROD_URL
-            : "http://localhost:3000",
+          process.env.NODE_ENV !== "development" ? process.env.PROD_URL : "http://localhost:3000",
         methods: "GET,POST,PUT,DELETE,PATCH",
-        credentials: true,
+        credentials: true
       })
     );
     this.app.use(helmet());
@@ -49,11 +47,9 @@ class App {
     transactionRouter(this.app);
 
     // set up global error handling here
-    this.app.use(
-      (error: Error, req: Request, res: Response, next: NextFunction) => {
-        errorHandler.handleError(error, res);
-      }
-    );
+    this.app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
+      errorHandler.handleError(error, res);
+    });
   }
 }
 

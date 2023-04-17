@@ -3,7 +3,7 @@ import { HydratedDocument, Model, Document, Types } from "mongoose";
 declare global {
   namespace Express {
     interface Request {
-      user?: UserDocument;
+      user: UserDocument;
       token?: string;
     }
   }
@@ -14,13 +14,13 @@ export interface IUser {
   email: string;
   password: string;
   phoneNumber: number;
-  avatar?: Buffer | undefined;
-  balance?: number;
-  wallet_id?: string;
+  avatar: Buffer | undefined;
+  balance: number;
+  wallet_id: string;
   tokens: object[];
-  is_admin?: boolean;
-  resetPasswordToken?: string;
-  resetPasswordExpire?: Date;
+  is_admin: boolean;
+  resetPasswordToken: string | undefined;
+  resetPasswordExpire: Date | undefined;
   transactions?: ITransaction[];
 }
 
@@ -38,16 +38,18 @@ export interface ITransaction {
 
 enum TransactionType {
   CREDIT = "credit",
-  DEBIT = "debit",
+  DEBIT = "debit"
 }
 
 enum TransactionStatus {
   SUCCESS = "success",
-  FAILURE = "failed",
+  FAILURE = "failed"
 }
 export type IMatch = {
   transaction_type: "credit" | "debit";
 };
+
+export type Sort = { [key: string]: number };
 
 export type UserDocument = IUser & Document;
 
@@ -58,12 +60,14 @@ export interface IUserMethods {
   generateResetPasswordToken(): Promise<string>;
 }
 
-export interface UserModel extends Model<IUser, {}, IUserMethods> {
+export interface UserModel extends Model<IUser, object, IUserMethods> {
   findByCredentials(
     email: string,
     password: string
   ): Promise<HydratedDocument<IUser, IUserMethods>>;
 }
+
+export type Data = object | string;
 
 export interface ILogin {
   email: string;
@@ -93,5 +97,5 @@ export enum responseStatusCodes {
   CONFLICT = 409,
   UNPROCESSABLE = 422,
   INTERNAL_SERVER_ERROR = 500,
-  NOT_IMPLEMENTED = 501,
+  NOT_IMPLEMENTED = 501
 }

@@ -20,7 +20,7 @@ export default class Controller {
       if (existingUser)
         throw new AppError({
           message: "User already exist",
-          statusCode: responseStatusCodes.CONFLICT,
+          statusCode: responseStatusCodes.CONFLICT
         });
       //Create User account
       const user = await User.create(req.body);
@@ -34,12 +34,12 @@ export default class Controller {
       sendEmail({
         email,
         subject: "Account registration",
-        message: `Thanks for choosing Kimbali ${name}, do enjoy seamless transactions`,
+        message: `Thanks for choosing Kimbali ${name}, do enjoy seamless transactions`
       });
 
       responseHelper.createdResponse(res, "Account created succesfully", {
         user,
-        token,
+        token
       });
     } catch (error: any) {
       if (error.name === "ValidationError") {
@@ -74,11 +74,8 @@ export default class Controller {
 
   static uploadAvatar: RequestHandler = async (req, res, next) => {
     try {
-      const user = req.user!;
-      const buffer = await sharp(req.file?.buffer)
-        .resize(250, 250)
-        .png()
-        .toBuffer();
+      const user = req.user;
+      const buffer = await sharp(req.file?.buffer).resize(250, 250).png().toBuffer();
       user.avatar = buffer;
       await user.save();
 
@@ -90,11 +87,11 @@ export default class Controller {
 
   static viewAvatar: RequestHandler = async (req, res, next) => {
     try {
-      const user = req.user!;
+      const user = req.user;
       if (!user.avatar)
         throw new AppError({
           message: "No image uploaded, Upload now",
-          statusCode: responseStatusCodes.NOT_FOUND,
+          statusCode: responseStatusCodes.NOT_FOUND
         });
       res.set("Content-Type", "Image/png");
       res.status(200).send(user.avatar);
@@ -104,7 +101,7 @@ export default class Controller {
   };
 
   static deleteAvatar: RequestHandler = async (req, res, next) => {
-    const user = req.user!;
+    const user = req.user;
     try {
       user.avatar = undefined;
       await user.save();
@@ -116,22 +113,20 @@ export default class Controller {
 
   static updateProfile: RequestHandler = async (req, res, next) => {
     try {
-      const updates = Object.keys(req.body) as Array<keyof IUser>;
+      const updates = Object.keys(req.body);
       if (updates.length === 0)
         throw new AppError({
           message: "Invalid update!",
-          statusCode: responseStatusCodes.BAD_REQUEST,
+          statusCode: responseStatusCodes.BAD_REQUEST
         });
       const allowedUpdates = ["name", "email", "phoneNumber"];
-      const isValidOperation = updates.every((update) =>
-        allowedUpdates.includes(update)
-      );
+      const isValidOperation = updates.every((update) => allowedUpdates.includes(update));
       if (!isValidOperation)
         throw new AppError({
           message: "Invalid update",
-          statusCode: responseStatusCodes.BAD_REQUEST,
+          statusCode: responseStatusCodes.BAD_REQUEST
         });
-      const user: any = req.user!;
+      const user: any = req.user;
       updates.forEach((update) => (user[update] = req.body[update]));
       await user.save();
       responseHelper.successResponse(res, user);
@@ -141,15 +136,12 @@ export default class Controller {
   };
 
   static logout: RequestHandler = async (req, res, next) => {
-    const user = req.user!;
+    const user = req.user;
     //Check through the user tokens to filter out the one that was used for auth on the device
     user.tokens = user.tokens.filter((token: any) => token.token !== req.token);
     try {
       await user.save();
-      responseHelper.successResponse(
-        res,
-        "You've successfully logged out of this system"
-      );
+      responseHelper.successResponse(res, "You've successfully logged out of this system");
     } catch (error) {
       next(error);
     }
@@ -162,15 +154,13 @@ export default class Controller {
     if (!user)
       throw new AppError({
         message: "Sorry, we don't recognize this account",
-        statusCode: responseStatusCodes.BAD_REQUEST,
+        statusCode: responseStatusCodes.BAD_REQUEST
       });
 
     //Generate reset Password Token
     const resetToken = await user.generateResetPasswordToken();
     // Create reset url
-    const resetURl = `${req.protocol}://${req.get(
-      "host"
-    )}/forget_password/${resetToken}`;
+    const resetURl = `${req.protocol}://${req.get("host")}/forget_password/${resetToken}`;
     //Create SMS message
     const message = `Hi ${user.name} \n 
     Please click on the following link ${resetURl} to reset your password. \n\n 
@@ -180,7 +170,7 @@ export default class Controller {
       sendEmail({
         email: email,
         subject: "PASSWORD RESET REQUEST",
-        message: message,
+        message: message
       });
 
       return responseHelper.successResponse(res, "Email Sent");
@@ -195,21 +185,18 @@ export default class Controller {
     const { token } = req.params;
 
     // Hash token
-    const resetPasswordToken = crypto
-      .createHash("sha256")
-      .update(token)
-      .digest("hex");
+    const resetPasswordToken = crypto.createHash("sha256").update(token).digest("hex");
 
     try {
       const user = await User.findOne({
         resetPasswordToken,
-        resetPasswordExpire: { $gt: Date.now() },
+        resetPasswordExpire: { $gt: Date.now() }
       });
 
       if (!user)
         throw new AppError({
           message: "Invalid or Expired Token",
-          statusCode: responseStatusCodes.BAD_REQUEST,
+          statusCode: responseStatusCodes.BAD_REQUEST
         });
       // Set new password
       user.password = req.body.password;
@@ -225,19 +212,16 @@ export default class Controller {
   };
 
   static deleteProfile: RequestHandler = async (req, res, next) => {
-    const user = req.user!;
+    const user = req.user;
     try {
       await user.deleteOne();
       // Send Goodbye message to exiting user
       sendEmail({
         email: user.email,
         subject: "Sorry to see you go!",
-        message: `Goodbye ${user.name}. I hope to see you sometime soon`,
+        message: `Goodbye ${user.name}. I hope to see you sometime soon`
       });
-      return responseHelper.successResponse(
-        res,
-        "Account deactivated successfully"
-      );
+      return responseHelper.successResponse(res, "Account deactivated successfully");
     } catch (error) {
       next(error);
     }

@@ -13,7 +13,7 @@ const server = http
   .createServer(app)
   .listen(PORT, () => Logger.info(`Server is running 🚀🚀🚀 on port ${PORT}`));
 
-process.on("uncaughtException", (error: Error, res: Response) => {
+process.on("uncaughtException", (error: Error) => {
   Logger.error(`Uncaught Exception: ${error.stack}`);
   errorHandler.handleError(error);
 });
@@ -23,7 +23,7 @@ process.on("unhandledRejection", (error: Error | AppError) => {
   throw new AppError({
     name: error.name,
     message: error.message,
-    statusCode: responseStatusCodes.INTERNAL_SERVER_ERROR,
+    statusCode: responseStatusCodes.INTERNAL_SERVER_ERROR
   });
 });
 

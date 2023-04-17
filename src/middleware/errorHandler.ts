@@ -21,7 +21,7 @@ export class ErrorHandler {
   private handleTrustedError = (error: AppError, res: Response) => {
     return res.status(error.statusCode).json({
       STATUS: "FAILURE",
-      MESSAGE: error.message,
+      MESSAGE: error.message
     });
   };
   private handleCriticalError(error: Error, res?: Response) {
@@ -30,8 +30,8 @@ export class ErrorHandler {
         STATUS: "FAILURE",
         ERROR: {
           name: error.name,
-          message: "Internal Server Error",
-        },
+          message: "Internal Server Error"
+        }
       });
     }
     Logger.error(error);
