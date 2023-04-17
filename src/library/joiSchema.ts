@@ -12,6 +12,8 @@ const joiSchema = {
     email: Joi.string().email().required(),
     password: Joi.string().required(),
   }),
+  forgetPassword: Joi.object({email: Joi.string().email().required()}),
+  resetPassword: Joi.object({password: Joi.string().min(8).max(20).required(),}),
   fundWallet: Joi.object({ amount: Joi.number().min(10).required() }),
   transferFunds: Joi.object({
     amount: Joi.number().min(100).required(),
