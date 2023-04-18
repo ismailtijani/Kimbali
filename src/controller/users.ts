@@ -37,10 +37,7 @@ export default class Controller {
         message: `Thanks for choosing Kimbali ${name}, do enjoy seamless transactions`
       });
 
-      responseHelper.createdResponse(res, "Account created succesfully", {
-        user,
-        token
-      });
+      responseHelper.createdResponse(res, "Account created succesfully", token);
     } catch (error: any) {
       if (error.name === "ValidationError") {
         Logger.error(error);
@@ -129,7 +126,7 @@ export default class Controller {
       const user: any = req.user;
       updates.forEach((update) => (user[update] = req.body[update]));
       await user.save();
-      responseHelper.successResponse(res, user);
+      responseHelper.successResponse(res, "Profile updated successfully✅");
     } catch (error) {
       next(error);
     }
@@ -173,11 +170,11 @@ export default class Controller {
         message: message
       });
 
-      return responseHelper.successResponse(res, "Email Sent");
+      return responseHelper.successResponse(res, "Email Sent ✅");
     } catch (error) {
       return res
         .status(responseStatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: "Email could not be sent" });
+        .json({ message: "Email could not be sent ❌" });
     }
   };
 

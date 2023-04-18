@@ -37,7 +37,7 @@ export default class Controller {
         description: `Hi ${user.name}, your wallet have been funded with #${amount}.`
       });
 
-      return responseHelper.successResponse(res, "Wallet funded successfully");
+      return responseHelper.successResponse(res, "Wallet funded successfully ✅");
     } catch (error) {
       next(error);
     }
@@ -59,7 +59,7 @@ export default class Controller {
       //Prevent User from transfering funds to oneself
       if (sender.wallet_id === receiver_id)
         throw new AppError({
-          message: "Invalid transaction",
+          message: "Invalid transaction ⛔",
           statusCode: responseStatusCodes.UNPROCESSABLE
         });
       //Check if there is an account with the wallet id
@@ -181,10 +181,11 @@ export default class Controller {
       });
       //Get all user transactions
       const transactions = req.user?.transactions;
+
       if (transactions?.length === 0)
         throw new AppError({
           message: "No transaction record, do make some transactions 😊",
-          statusCode: responseStatusCodes.NO_CONTENT
+          statusCode: responseStatusCodes.NOT_FOUND
         });
 
       return responseHelper.successResponse(res, transactions);
