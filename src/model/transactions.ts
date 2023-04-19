@@ -6,42 +6,42 @@ const TransactionSchema = new Schema<ITransaction>(
     sender_id: {
       type: Schema.Types.ObjectId,
       required: true,
-      ref: "User",
+      ref: "User"
     },
     transaction_type: {
       type: String,
-      required: true,
+      required: true
     },
     transaction_status: {
       type: String,
       default: "Pending",
-      required: true,
+      required: true
     },
     amount: {
       type: Number,
       required: true,
-      default: 0,
+      default: 0
     },
     receiver_id: {
       type: String,
-      required: true,
+      required: true
     },
     transaction_fee: {
       type: Number,
       required: true,
-      default: 0,
+      default: 0
     },
     balance_before: {
       type: Number,
       required: true,
-      default: 0,
+      default: 0
     },
     newBalance: {
       type: Number,
       required: true,
-      default: 0,
+      default: 0
     },
-    description: String,
+    description: String
   },
   { timestamps: true }
 );

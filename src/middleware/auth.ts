@@ -17,7 +17,7 @@ class Authentication {
       if (!token)
         throw new AppError({
           message: "Please Authenticate",
-          statusCode: responseStatusCodes.UNAUTHORIZED,
+          statusCode: responseStatusCodes.UNAUTHORIZED
         });
       //   Verify Token
       const decoded = <IDecode>jwt.verify(token, JWT_SECRET);
@@ -25,13 +25,13 @@ class Authentication {
       //   Get user from database
       const user = await User.findOne({
         _id: decoded._id,
-        "tokens.token": token,
+        "tokens.token": token
       });
 
       if (!user)
         throw new AppError({
           message: "Please Authenticate",
-          statusCode: responseStatusCodes.UNAUTHORIZED,
+          statusCode: responseStatusCodes.UNAUTHORIZED
         });
       // Add user to request
       req.user = user;
@@ -41,7 +41,7 @@ class Authentication {
       if (error.name === "JsonWebTokenError")
         return res.status(responseStatusCodes.BAD_REQUEST).json({
           STATUS: "FAILURE",
-          ERROR: "Invalid Token",
+          ERROR: "Invalid Token"
         });
       next(error);
     }

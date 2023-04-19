@@ -29,22 +29,13 @@ class TransactionRoutes {
       validator(joiSchema.withdrawFunds, "body"),
       TransactionController.withdrawFunds
     );
-    this.router.get(
-      "/transaction_history",
-      TransactionController.viewTransactionHistory
-    );
+    this.router.get("/transaction_history", TransactionController.viewTransactionHistory);
     this.router.get(
       "/transaction_details/:transaction_id",
       TransactionController.viewTransactionDetails
     );
-    this.router.get(
-      "/totalamount_credited",
-      TransactionController.totalAmountCredited
-    );
-    this.router.get(
-      "/totalamount_debited",
-      TransactionController.totalAmountDebited
-    );
+    this.router.get("/totalamount_credited", TransactionController.totalAmountCredited);
+    this.router.get("/totalamount_debited", TransactionController.totalAmountDebited);
   }
 }
 
