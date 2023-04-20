@@ -2,13 +2,7 @@ import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import AppError from "../library/errorClass";
-import {
-  IUser,
-  IUserMethods,
-  responseStatusCodes,
-  UserDocument,
-  UserModel
-} from "../library/interfaces";
+import { IUser, IUserMethods, responseStatusCodes, UserDocument, UserModel } from "../library/interfaces";
 import crypto from "crypto";
 import Transaction from "./transactions";
 import Logger from "../library/logger";
@@ -124,10 +118,7 @@ userSchema.methods.toJSON = function () {
 };
 
 //Login User Authentication
-userSchema.statics.findByCredentials = async (
-  email: IUser["email"],
-  password: IUser["password"]
-) => {
+userSchema.statics.findByCredentials = async (email: IUser["email"], password: IUser["password"]) => {
   const user = await User.findOne({ email });
   if (!user)
     throw new AppError({
@@ -146,9 +137,7 @@ userSchema.statics.findByCredentials = async (
 // Deleting User's records upon Deleting User Profile
 userSchema.pre<UserDocument>("remove", async function (next) {
   await Transaction.deleteMany({ sender_id: this._id });
-  Logger.warn(
-    `All transaction records created by ${this.name} has been deleted as the user deleted thier account`
-  );
+  Logger.warn(`All transaction records created by ${this.name} has been deleted as the user deleted thier account`);
   next();
 });
 

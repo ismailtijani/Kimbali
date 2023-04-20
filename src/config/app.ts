@@ -23,8 +23,7 @@ class App {
     // Enable security middlewares
     this.app.use(
       cors({
-        origin:
-          process.env.NODE_ENV !== "development" ? process.env.PROD_URL : "http://localhost:3000",
+        origin: process.env.NODE_ENV !== "development" ? process.env.PROD_URL : "http://localhost:3000",
         methods: "GET,POST,PUT,DELETE,PATCH",
         credentials: true
       })

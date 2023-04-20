@@ -61,10 +61,7 @@ export interface IUserMethods {
 }
 
 export interface UserModel extends Model<IUser, object, IUserMethods> {
-  findByCredentials(
-    email: string,
-    password: string
-  ): Promise<HydratedDocument<IUser, IUserMethods>>;
+  findByCredentials(email: string, password: string): Promise<HydratedDocument<IUser, IUserMethods>>;
 }
 
 export type Data = object | string;

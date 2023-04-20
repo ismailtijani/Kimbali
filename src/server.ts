@@ -9,9 +9,7 @@ import { responseStatusCodes } from "./library/interfaces";
 //   .listen(PORT, () => `Server is running 🚀🚀🚀 on port ${PORT}`)
 //   .on("error", (error) => Logging.info(`Server Error: ${error}`));
 
-const server = http
-  .createServer(app)
-  .listen(PORT, () => Logger.info(`Server is running 🚀🚀🚀 on port ${PORT}`));
+const server = http.createServer(app).listen(PORT, () => Logger.info(`Server is running 🚀🚀🚀 on port ${PORT}`));
 
 process.on("uncaughtException", (error: Error) => {
   Logger.error(`Uncaught Exception: ${error.stack}`);

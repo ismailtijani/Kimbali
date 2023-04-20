@@ -41,9 +41,7 @@ export default class Controller {
     } catch (error: any) {
       if (error.name === "ValidationError") {
         Logger.error(error);
-        return res
-          .status(responseStatusCodes.BAD_REQUEST)
-          .json({ name: error.name, message: error.message });
+        return res.status(responseStatusCodes.BAD_REQUEST).json({ name: error.name, message: error.message });
       }
 
       next(error);
@@ -172,9 +170,7 @@ export default class Controller {
 
       return responseHelper.successResponse(res, "Email Sent ✅");
     } catch (error) {
-      return res
-        .status(responseStatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: "Email could not be sent ❌" });
+      return res.status(responseStatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Email could not be sent ❌" });
     }
   };
 

@@ -13,27 +13,12 @@ class TransactionRoutes {
   private registeredRoutes() {
     //Every routes below will require authentication
     this.router.use(auth);
-    this.router.post(
-      "/fund_wallet",
-      validator(joiSchema.fundWallet, "body"),
-      TransactionController.fundWallet
-    );
-    this.router.post(
-      "/transfer",
-      validator(joiSchema.transferFunds, "body"),
-      TransactionController.transferFunds
-    );
+    this.router.post("/fund_wallet", validator(joiSchema.fundWallet, "body"), TransactionController.fundWallet);
+    this.router.post("/transfer", validator(joiSchema.transferFunds, "body"), TransactionController.transferFunds);
     this.router.get("/balance", TransactionController.viewBalance);
-    this.router.post(
-      "/withdrawal",
-      validator(joiSchema.withdrawFunds, "body"),
-      TransactionController.withdrawFunds
-    );
+    this.router.post("/withdrawal", validator(joiSchema.withdrawFunds, "body"), TransactionController.withdrawFunds);
     this.router.get("/transaction_history", TransactionController.viewTransactionHistory);
-    this.router.get(
-      "/transaction_details/:transaction_id",
-      TransactionController.viewTransactionDetails
-    );
+    this.router.get("/transaction_details/:transaction_id", TransactionController.viewTransactionDetails);
     this.router.get("/totalamount_credited", TransactionController.totalAmountCredited);
     this.router.get("/totalamount_debited", TransactionController.totalAmountDebited);
   }
