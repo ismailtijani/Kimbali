@@ -1,7 +1,7 @@
 {
   "semi": true,
-  "tabWidth": 2,
   "endOfLine": "lf",
-  "printWidth": 120,
-  "trailingComma": "none"
+  "printWidth": 100,
+  "trailingComma": "es5",
+  "bracketSameLine": true
 }
