@@ -23,7 +23,11 @@ class UserRoutes {
     this.router.get("/profile/view_avatar", userController.viewAvatar);
     this.router.delete("/profile/delete_avatar", userController.deleteAvatar);
     this.router.post("/logout", userController.logout);
-    this.router.post("/forget_password", validator(joiSchema.forgetPassword, "body"), userController.forgetPassword);
+    this.router.post(
+      "/forget_password",
+      validator(joiSchema.forgetPassword, "body"),
+      userController.forgetPassword
+    );
     this.router.post(
       "/reset_password/:token",
       validator(joiSchema.resetPassword, "body"),

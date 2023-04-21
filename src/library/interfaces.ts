@@ -38,12 +38,12 @@ export interface ITransaction {
 
 enum TransactionType {
   CREDIT = "credit",
-  DEBIT = "debit"
+  DEBIT = "debit",
 }
 
 enum TransactionStatus {
   SUCCESS = "success",
-  FAILURE = "failed"
+  FAILURE = "failed",
 }
 export type IMatch = {
   transaction_type: "credit" | "debit";
@@ -61,7 +61,10 @@ export interface IUserMethods {
 }
 
 export interface UserModel extends Model<IUser, object, IUserMethods> {
-  findByCredentials(email: string, password: string): Promise<HydratedDocument<IUser, IUserMethods>>;
+  findByCredentials(
+    email: string,
+    password: string
+  ): Promise<HydratedDocument<IUser, IUserMethods>>;
 }
 
 export type Data = object | string;
@@ -94,5 +97,5 @@ export enum responseStatusCodes {
   CONFLICT = 409,
   UNPROCESSABLE = 422,
   INTERNAL_SERVER_ERROR = 500,
-  NOT_IMPLEMENTED = 501
+  NOT_IMPLEMENTED = 501,
 }

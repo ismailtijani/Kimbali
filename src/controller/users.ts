@@ -7,6 +7,7 @@ import { responseHelper } from "../library/responseHelper";
 import User from "../model/user";
 import crypto from "crypto";
 import sharp from "sharp";
+import { invalid } from "joi";
 
 export default class Controller {
   static signup: RequestHandler = async (req, res, next) => {
@@ -20,7 +21,7 @@ export default class Controller {
       if (existingUser)
         throw new AppError({
           message: "User already exist",
-          statusCode: responseStatusCodes.CONFLICT
+          statusCode: responseStatusCodes.CONFLICT,
         });
       //Create User account
       const user = await User.create(req.body);
@@ -34,14 +35,16 @@ export default class Controller {
       sendEmail({
         email,
         subject: "Account registration",
-        message: `Thanks for choosing Kimbali ${name}, do enjoy seamless transactions`
+        message: `Thanks for choosing Kimbali ${name}, do enjoy seamless transactions`,
       });
 
       responseHelper.createdResponse(res, "Account created succesfully", token);
     } catch (error: any) {
       if (error.name === "ValidationError") {
         Logger.error(error);
-        return res.status(responseStatusCodes.BAD_REQUEST).json({ name: error.name, message: error.message });
+        return res
+          .status(responseStatusCodes.BAD_REQUEST)
+          .json({ name: error.name, message: error.message });
       }
 
       next(error);
@@ -70,6 +73,11 @@ export default class Controller {
   static uploadAvatar: RequestHandler = async (req, res, next) => {
     try {
       const user = req.user;
+      if (!req.file)
+        throw new AppError({
+          message: " Invalid input",
+          statusCode: responseStatusCodes.BAD_REQUEST,
+        });
       const buffer = await sharp(req.file?.buffer).resize(250, 250).png().toBuffer();
       user.avatar = buffer;
       await user.save();
@@ -86,7 +94,7 @@ export default class Controller {
       if (!user.avatar)
         throw new AppError({
           message: "No image uploaded, Upload now",
-          statusCode: responseStatusCodes.NOT_FOUND
+          statusCode: responseStatusCodes.NOT_FOUND,
         });
       res.set("Content-Type", "Image/png");
       res.status(200).send(user.avatar);
@@ -112,14 +120,14 @@ export default class Controller {
       if (updates.length === 0)
         throw new AppError({
           message: "Invalid update!",
-          statusCode: responseStatusCodes.BAD_REQUEST
+          statusCode: responseStatusCodes.BAD_REQUEST,
         });
       const allowedUpdates = ["name", "email", "phoneNumber"];
       const isValidOperation = updates.every((update) => allowedUpdates.includes(update));
       if (!isValidOperation)
         throw new AppError({
           message: "Invalid update",
-          statusCode: responseStatusCodes.BAD_REQUEST
+          statusCode: responseStatusCodes.BAD_REQUEST,
         });
       const user: any = req.user;
       updates.forEach((update) => (user[update] = req.body[update]));
@@ -149,7 +157,7 @@ export default class Controller {
     if (!user)
       throw new AppError({
         message: "Sorry, we don't recognize this account",
-        statusCode: responseStatusCodes.BAD_REQUEST
+        statusCode: responseStatusCodes.BAD_REQUEST,
       });
 
     //Generate reset Password Token
@@ -165,12 +173,14 @@ export default class Controller {
       sendEmail({
         email: email,
         subject: "PASSWORD RESET REQUEST",
-        message: message
+        message: message,
       });
 
       return responseHelper.successResponse(res, "Email Sent ✅");
     } catch (error) {
-      return res.status(responseStatusCodes.INTERNAL_SERVER_ERROR).json({ message: "Email could not be sent ❌" });
+      return res
+        .status(responseStatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: "Email could not be sent ❌" });
     }
   };
 
@@ -183,13 +193,13 @@ export default class Controller {
     try {
       const user = await User.findOne({
         resetPasswordToken,
-        resetPasswordExpire: { $gt: Date.now() }
+        resetPasswordExpire: { $gt: Date.now() },
       });
 
       if (!user)
         throw new AppError({
           message: "Invalid or Expired Token",
-          statusCode: responseStatusCodes.BAD_REQUEST
+          statusCode: responseStatusCodes.BAD_REQUEST,
         });
       // Set new password
       user.password = req.body.password;
@@ -212,7 +222,7 @@ export default class Controller {
       sendEmail({
         email: user.email,
         subject: "Sorry to see you go!",
-        message: `Goodbye ${user.name}. I hope to see you sometime soon`
+        message: `Goodbye ${user.name}. I hope to see you sometime soon`,
       });
       return responseHelper.successResponse(res, "Account deactivated successfully");
     } catch (error) {

@@ -6,7 +6,9 @@ import errorHandler from "../middleware/errorHandler";
 class MongoDB {
   static async connect() {
     try {
-      await mongoose.set("strictQuery", false).connect(mongoUrl, { retryWrites: true, w: "majority" });
+      await mongoose
+        .set("strictQuery", false)
+        .connect(mongoUrl, { retryWrites: true, w: "majority" });
 
       Logger.info("DB Connection Successful");
       Logger.info(`'''''''''''''''''''''''''`);

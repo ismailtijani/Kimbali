@@ -9,7 +9,9 @@ import { responseStatusCodes } from "./library/interfaces";
 //   .listen(PORT, () => `Server is running 🚀🚀🚀 on port ${PORT}`)
 //   .on("error", (error) => Logging.info(`Server Error: ${error}`));
 
-const server = http.createServer(app).listen(PORT, () => Logger.info(`Server is running 🚀🚀🚀 on port ${PORT}`));
+const server = http
+  .createServer(app)
+  .listen(PORT, () => Logger.info(`Server is running 🚀🚀🚀 on port ${PORT}`));
 
 process.on("uncaughtException", (error: Error) => {
   Logger.error(`Uncaught Exception: ${error.stack}`);
@@ -21,7 +23,7 @@ process.on("unhandledRejection", (error: Error | AppError) => {
   throw new AppError({
     name: error.name,
     message: error.message,
-    statusCode: responseStatusCodes.INTERNAL_SERVER_ERROR
+    statusCode: responseStatusCodes.INTERNAL_SERVER_ERROR,
   });
 });
 

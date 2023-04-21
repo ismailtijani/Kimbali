@@ -34,7 +34,7 @@ export default class Controller {
         balance_before,
         newBalance: user.balance,
         receiver_id: user.wallet_id,
-        description: `Hi ${user.name}, your wallet have been funded with #${amount}.`
+        description: `Hi ${user.name}, your wallet have been funded with #${amount}.`,
       });
 
       return responseHelper.successResponse(res, "Wallet funded successfully ✅");
@@ -60,19 +60,19 @@ export default class Controller {
       if (sender.wallet_id === receiver_id)
         throw new AppError({
           message: "Invalid transaction ⛔",
-          statusCode: responseStatusCodes.UNPROCESSABLE
+          statusCode: responseStatusCodes.UNPROCESSABLE,
         });
       //Check if there is an account with the wallet id
       const receiver = await User.findOne({ wallet_id: receiver_id });
       if (!receiver)
         throw new AppError({
           message: "Account verification failed. Please check details",
-          statusCode: responseStatusCodes.BAD_REQUEST
+          statusCode: responseStatusCodes.BAD_REQUEST,
         });
       if (balance_before < amount)
         throw new AppError({
           message: `Insufficient funds in your wallet. Please add money to your Balance to pay ${receiver?.name}`,
-          statusCode: responseStatusCodes.UNPROCESSABLE
+          statusCode: responseStatusCodes.UNPROCESSABLE,
         });
 
       const transaction = await Transaction.create({
@@ -84,7 +84,7 @@ export default class Controller {
         balance_before,
         newBalance,
         receiver_id,
-        description: `Hi ${sender.name}, your wallet have been debited with #${amount}.`
+        description: `Hi ${sender.name}, your wallet have been debited with #${amount}.`,
       });
       //Update user account balance
       receiver.balance = receiver.balance + Number(amount);
@@ -99,7 +99,7 @@ export default class Controller {
         Account_Name: receiver.name,
         VAT: kimbali_transaction_fee,
         Transaction_id: transaction._id.toString(),
-        Description: `Funds transferred successfully to ${receiver.name}`
+        Description: `Funds transferred successfully to ${receiver.name}`,
       };
       return responseHelper.transactionSuccessResponse(res, Data);
     } catch (error) {
@@ -121,7 +121,7 @@ export default class Controller {
       if (balance_before < amount)
         throw new AppError({
           message: `Insufficient funds in your wallet. Please toUp`,
-          statusCode: responseStatusCodes.UNPROCESSABLE
+          statusCode: responseStatusCodes.UNPROCESSABLE,
         });
 
       await Transaction.create({
@@ -133,7 +133,7 @@ export default class Controller {
         balance_before,
         newBalance,
         receiver_id: user._id,
-        description: `Hi ${user.name}, your wallet have been debited with #${amount}.`
+        description: `Hi ${user.name}, your wallet have been debited with #${amount}.`,
       });
       //Update user account balance
       user.balance = newBalance;
@@ -176,8 +176,8 @@ export default class Controller {
         options: {
           limit: parseInt(req.query.limit as string),
           skip: parseInt(req.query.skip as string),
-          sort
-        }
+          sort,
+        },
       });
       //Get all user transactions
       const transactions = req.user?.transactions;
@@ -185,7 +185,7 @@ export default class Controller {
       if (transactions?.length === 0)
         throw new AppError({
           message: "No transaction record, do make some transactions 😊",
-          statusCode: responseStatusCodes.NOT_FOUND
+          statusCode: responseStatusCodes.NOT_FOUND,
         });
 
       return responseHelper.successResponse(res, transactions);
@@ -204,14 +204,14 @@ export default class Controller {
         throw new AppError({
           message: "Invalid Input, Please check details",
           statusCode: responseStatusCodes.BAD_REQUEST,
-          name: "ValidationError"
+          name: "ValidationError",
         });
       const transaction = await Transaction.findById(transaction_id);
 
       if (!transaction)
         throw new AppError({
           message: "No Transaction found",
-          statusCode: responseStatusCodes.NOT_FOUND
+          statusCode: responseStatusCodes.NOT_FOUND,
         });
 
       return responseHelper.successResponse(res, transaction);
@@ -225,7 +225,7 @@ export default class Controller {
       //Get all transactions made by the user
       await req.user?.populate({
         path: "transactions",
-        match: { transaction_type: "credit" }
+        match: { transaction_type: "credit" },
       });
       const transactions = req.user?.transactions;
       //Sum up all credit amount
@@ -242,7 +242,7 @@ export default class Controller {
       //Get all transactions made by the user
       await req.user.populate({
         path: "transactions",
-        match: { transaction_type: "debit" }
+        match: { transaction_type: "debit" },
       });
       const transactions = req.user.transactions;
       //Sum up the debit amount

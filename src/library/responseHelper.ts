@@ -5,7 +5,7 @@ export class responseHelper {
   public static successResponse(res: Response, DATA?: Data) {
     res.status(responseStatusCodes.SUCCESS).json({
       STATUS: "SUCCESS",
-      DATA
+      DATA,
     });
   }
 
@@ -13,7 +13,7 @@ export class responseHelper {
     res.status(responseStatusCodes.CREATED).json({
       STATUS: "SUCCESS",
       MESSAGE: message,
-      DATA
+      DATA,
     });
   }
 

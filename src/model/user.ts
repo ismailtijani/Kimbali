@@ -2,7 +2,13 @@ import { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import AppError from "../library/errorClass";
-import { IUser, IUserMethods, responseStatusCodes, UserDocument, UserModel } from "../library/interfaces";
+import {
+  IUser,
+  IUserMethods,
+  responseStatusCodes,
+  UserDocument,
+  UserModel,
+} from "../library/interfaces";
 import crypto from "crypto";
 import Transaction from "./transactions";
 import Logger from "../library/logger";
@@ -11,7 +17,7 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   {
     name: {
       type: String,
-      required: [true, "Name must be provided"]
+      required: [true, "Name must be provided"],
     },
     password: {
       type: String,
@@ -22,44 +28,44 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
           throw new AppError({
             message: "You can't use the word password",
             statusCode: responseStatusCodes.BAD_REQUEST,
-            isOperational: true
+            isOperational: true,
           });
-      }
+      },
     },
     email: {
       type: String,
       trim: true,
       required: true,
       unique: true,
-      lowercase: true
+      lowercase: true,
     },
     phoneNumber: {
       type: Number,
-      required: true
+      required: true,
     },
     avatar: Buffer,
     balance: {
       type: Number,
-      default: 0
+      default: 0,
     },
     wallet_id: {
-      type: String
+      type: String,
     },
 
     is_admin: {
       type: Boolean,
-      default: false
+      default: false,
     },
     tokens: [
       {
         token: {
           type: String,
-          required: true
-        }
-      }
+          required: true,
+        },
+      },
     ],
     resetPasswordToken: String,
-    resetPasswordExpire: Date
+    resetPasswordExpire: Date,
   },
   { timestamps: true }
 );
@@ -68,7 +74,7 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 userSchema.virtual("transactions", {
   ref: "Transaction",
   localField: "_id",
-  foreignField: "sender_id"
+  foreignField: "sender_id",
 });
 
 //Hashing User plain text password before saving
@@ -118,18 +124,21 @@ userSchema.methods.toJSON = function () {
 };
 
 //Login User Authentication
-userSchema.statics.findByCredentials = async (email: IUser["email"], password: IUser["password"]) => {
+userSchema.statics.findByCredentials = async (
+  email: IUser["email"],
+  password: IUser["password"]
+) => {
   const user = await User.findOne({ email });
   if (!user)
     throw new AppError({
       message: "User does not exist",
-      statusCode: responseStatusCodes.NOT_FOUND
+      statusCode: responseStatusCodes.NOT_FOUND,
     });
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch)
     throw new AppError({
       message: "Email or Password is incorrect",
-      statusCode: responseStatusCodes.BAD_REQUEST
+      statusCode: responseStatusCodes.BAD_REQUEST,
     });
   return user;
 };
@@ -137,7 +146,9 @@ userSchema.statics.findByCredentials = async (email: IUser["email"], password: I
 // Deleting User's records upon Deleting User Profile
 userSchema.pre<UserDocument>("remove", async function (next) {
   await Transaction.deleteMany({ sender_id: this._id });
-  Logger.warn(`All transaction records created by ${this.name} has been deleted as the user deleted thier account`);
+  Logger.warn(
+    `All transaction records created by ${this.name} has been deleted as the user deleted thier account`
+  );
   next();
 });
 
