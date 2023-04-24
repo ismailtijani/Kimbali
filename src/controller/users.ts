@@ -7,7 +7,6 @@ import { responseHelper } from "../library/responseHelper";
 import User from "../model/user";
 import crypto from "crypto";
 import sharp from "sharp";
-import { invalid } from "joi";
 
 export default class Controller {
   static signup: RequestHandler = async (req, res, next) => {

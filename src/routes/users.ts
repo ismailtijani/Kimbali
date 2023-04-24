@@ -4,6 +4,7 @@ import validator from "../middleware/validator";
 import joiSchema from "../library/joiSchema";
 import auth from "../middleware/auth";
 import upload from "../middleware/multer";
+
 class UserRoutes {
   public router: Router;
 
